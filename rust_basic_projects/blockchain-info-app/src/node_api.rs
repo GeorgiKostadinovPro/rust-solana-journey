@@ -9,10 +9,10 @@ use crate::node_status::NodeStatus;
 use crate::node_address::NodeAddress;
 use crate::node_transaction::NodeTransaction;
 
-// Constants
+// constants
 const HOST_BASE: &str = "https://btcbook.nownodes.io/api/";
 
-// Errors
+// errors
 const API_KEY_NOT_FOUND: &str = "API_KEY NOT FOUND";
 const RESPONSE_NOT_SUCCESSFUL: &str = "RESPONSE NOT SUCCESSFUL";
 const CONVERT_NOT_SUCCESSFUL: &str = "CONVERT NOT SUCCESSFUL";
@@ -56,6 +56,6 @@ pub async fn get_node_status() -> NodeStatus {
 /// @dev custom async get request fn for node address
 pub async fn get_node_address(address: &str) -> NodeAddress {
     let req = [HOST_BASE, "v2/address/", &address].join("");
-    let res = request(req).await;
+    let res = request(&req).await;
     serde_json::from_str(&res).expect(SERIALIZATION_NOT_SUCCESSFUL)
 }

@@ -5,11 +5,13 @@ pub struct Blockbook {
 }
 
 #[derive(Deserialize, Debug)]
-#[serde(rename_all = "CamelCase")]
+#[serde(rename_all = "camelCase")]
 pub struct Backend {
     pub chain: String
 }
 
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct NodeStatus {
     pub blockbook: Blockbook,
     pub backend: Backend
