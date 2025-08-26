@@ -9,3 +9,7 @@ Resources (excluding personal research for articles, videos, security newsletter
 - [Coding & Crypto](https://www.youtube.com/@CodingCrypto/playlists)
 - [Solana Developer Bootcamp by Solana Foundation](https://solana.com/developers)
 - [Ackee Blockchain Security Resources](https://ackee.xyz/)
+
+## Projects
+
+1. [blockchain-info-app](./rust_basic_projects/blockchain-info-app/)
