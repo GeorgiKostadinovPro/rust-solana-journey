@@ -1,0 +1,14 @@
+# Rust build
+/target/
+**/target/
+
+# Cargo lock for libraries (keep for apps)
+/Cargo.lock
+
+# VSCode
+.vscode/
+*.code-workspace
+
+# OS files
+.DS_Store
+Thumbs.db
