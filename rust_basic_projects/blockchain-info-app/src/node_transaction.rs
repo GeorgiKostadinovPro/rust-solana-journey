@@ -14,7 +14,7 @@ pub struct Vout {
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
-pub struct BlockchainTransaction {
+pub struct NodeTransaction {
     pub txid: String,
     pub vin: Vec<Vin>,
     pub vout: Vec<Vout>
