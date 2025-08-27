@@ -50,12 +50,12 @@ pub async fn get_node_status() -> NodeStatus {
     serde_json::from_str(&res).expect(SERIALIZATION_NOT_SUCCESSFUL)
 }
 
-/// @title get_node_address
+/// @title get_node_tx
 /// @author GeorgiKostadinovPro
-/// @notice get request fn for node address
-/// @dev custom async get request fn for node address
-pub async fn get_node_address(address: &str) -> NodeAddress {
-    let req = [HOST_BASE, "v2/address/", &address].join("");
+/// @notice get request fn for node tx
+/// @dev custom async get request fn for node tx
+pub async fn get_node_tx(txId: &str) -> NodeTransaction {
+    let req = [HOST_BASE, "v2/tx/", &txId].join("");
     let res = request(&req).await;
     serde_json::from_str(&res).expect(SERIALIZATION_NOT_SUCCESSFUL)
 }
