@@ -7,7 +7,7 @@ use serde_json::Result;
 // get from current crate (added in main.rs)
 use crate::node_status::NodeStatus;
 use crate::node_address::NodeAddress;
-use crate::node_transaction::NodeTransaction;
+use crate::node_tx::NodeTx;
 
 // constants
 const HOST_BASE: &str = "https://btcbook.nownodes.io/api/";
@@ -50,12 +50,22 @@ pub async fn get_node_status() -> NodeStatus {
     serde_json::from_str(&res).expect(SERIALIZATION_NOT_SUCCESSFUL)
 }
 
+/// @title get_node_address
+/// @author GeorgiKostadinovPro
+/// @notice get request fn for node address
+/// @dev custom async get request fn for node address
+pub async fn get_node_address(address: &str) -> NodeAddress {
+    let url = [HOST_BASE, "v2/address/", &address].join("");
+    let res = request(&url).await;
+    serde_json::from_str(&res).expect(SERIALIZATION_NOT_SUCCESSFUL)
+}
+
 /// @title get_node_tx
 /// @author GeorgiKostadinovPro
 /// @notice get request fn for node tx
 /// @dev custom async get request fn for node tx
-pub async fn get_node_tx(txId: &str) -> NodeTransaction {
-    let req = [HOST_BASE, "v2/tx/", &txId].join("");
-    let res = request(&req).await;
+pub async fn get_node_tx(txId: &str) -> NodeTx {
+    let url = [HOST_BASE, "v2/tx/", &txId].join("");
+    let res = request(&url).await;
     serde_json::from_str(&res).expect(SERIALIZATION_NOT_SUCCESSFUL)
 }

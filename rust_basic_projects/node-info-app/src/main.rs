@@ -9,14 +9,14 @@ extern crate serde;
 mod node_api;
 mod node_status;
 mod node_address;
-mod node_transaction;
+mod node_tx;
 
 // import modules 
 // get from current crate
 use {
     crate::node_status::NodeStatus,
     crate::node_address::NodeAddress,
-    crate::node_transaction::NodeTransaction,
+    crate::node_tx::NodeTx,
     dotenv,
     std::{io, thread, time}
 };
@@ -47,7 +47,7 @@ async fn node_info_app(account: &str) {
         return;
     }
 
-    println!("\nQuerying tx please wait...\n");
+    println!("\nQuerying txs please wait...\n");
 
     thread::sleep(pause_time);
 
@@ -58,6 +58,10 @@ async fn node_info_app(account: &str) {
     println!("\nGet info for specific tx id? Please type the id below: \n");
 
     io::stdin().read_line(&mut cmd);
+
+    let node_tx: NodeTx = node_api::get_node_tx(&(cmd.trim())).await;
+
+    println!("{:#?}", &node_tx);
 }
 
 #[tokio::main]

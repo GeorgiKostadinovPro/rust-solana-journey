@@ -14,7 +14,7 @@ pub struct Vout {
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
-pub struct NodeTransaction {
+pub struct NodeTx {
     pub txid: String,
     pub vin: Vec<Vin>,
     pub vout: Vec<Vout>
