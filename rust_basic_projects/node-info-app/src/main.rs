@@ -1,34 +1,29 @@
 // import dependencies
 use tokio;
+use dotenv;
+use std::{io, thread, time};
 
 // use all macros from serde for serialization and deserialization
 #[macro_use]
 extern crate serde;
 
 // register modules in the crate
-mod node_api;
-mod node_status;
-mod node_address;
-mod node_tx;
+mod api;
+mod models;
 
 // import modules 
 // get from current crate
-use {
-    crate::node_status::NodeStatus,
-    crate::node_address::NodeAddress,
-    crate::node_tx::NodeTx,
-    dotenv,
-    std::{io, thread, time}
-};
+use crate::api::endpoints;
+use crate::models::{node_status::NodeStatus, node_address::NodeAddress, node_tx::NodeTx};
 
 // constants
 const ACCOUNT_NOT_FOUND: &str = "ACCOUNT NOT FOUND";
 
 async fn node_info_app(account: &str) {
-    let node_status: NodeStatus = node_api::get_node_status().await;
+    let node_status: NodeStatus = endpoints::get_node_status().await;
     print!("\n\nQuerying: {} from chain: {}\n\n", &node_status.blockbook.coin, &node_status.backend.chain);
 
-    let node_address: NodeAddress = node_api::get_node_address(&account).await;
+    let node_address: NodeAddress = endpoints::get_node_address(&account).await;
     print!("\n\nAnalyzing tx for Bitcoin address {}\n\n", &node_address.address);
 
     let pause_time = time::Duration::from_millis(3000);
@@ -59,7 +54,7 @@ async fn node_info_app(account: &str) {
 
     io::stdin().read_line(&mut cmd);
 
-    let node_tx: NodeTx = node_api::get_node_tx(&(cmd.trim())).await;
+    let node_tx: NodeTx = endpoints::get_node_tx(&(cmd.trim())).await;
 
     println!("{:#?}", &node_tx);
 }

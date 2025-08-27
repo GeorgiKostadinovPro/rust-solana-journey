@@ -1,45 +1,17 @@
 // import dependencies
-use dotenv;
-use reqwest;
 use serde_json::Result;
 
 // import modules
 // get from current crate (added in main.rs)
-use crate::node_status::NodeStatus;
-use crate::node_address::NodeAddress;
-use crate::node_tx::NodeTx;
+use crate::models::{node_status::NodeStatus, node_address::NodeAddress, node_tx::NodeTx};
+
+use super::client::request;
 
 // constants
 const HOST_BASE: &str = "https://btcbook.nownodes.io/api/";
 
 // errors
-const API_KEY_NOT_FOUND: &str = "API_KEY NOT FOUND";
-const RESPONSE_NOT_SUCCESSFUL: &str = "RESPONSE NOT SUCCESSFUL";
-const CONVERT_NOT_SUCCESSFUL: &str = "CONVERT NOT SUCCESSFUL";
 const SERIALIZATION_NOT_SUCCESSFUL: &str = "SERIALIZATION NOT SUCCESSFUL";
-
-/// @title request
-/// @author GeorgiKostadinovPro
-/// @notice request sender
-/// @dev custom async request sender using reqwest HTTP client
-pub async fn request(url: &str) -> String {
-    // create a client object (preconfigured with components)
-    let client = reqwest::Client::new();
-
-    // extract api key from .env
-    let api_key = dotenv::var("API_KEY").expect(API_KEY_NOT_FOUND);
-
-    // requests CREATE, READ, UPDATE, DELETE
-    client
-        .get(url)
-        .header("api-key", api_key)
-        .send()
-        .await
-        .expect(RESPONSE_NOT_SUCCESSFUL)
-        .text()
-        .await
-        .expect(CONVERT_NOT_SUCCESSFUL)
-}
 
 /// @title get_node_status
 /// @author GeorgiKostadinovPro
