@@ -52,7 +52,11 @@ async fn node_info_app(account: &str) {
 
     println!("\nGet info for specific tx id? Please type the id below: \n");
 
+    cmd.clear();
+
     io::stdin().read_line(&mut cmd);
+
+    println!("{:#?}", cmd);
 
     let node_tx: NodeTx = endpoints::get_node_tx(&(cmd.trim())).await;
 

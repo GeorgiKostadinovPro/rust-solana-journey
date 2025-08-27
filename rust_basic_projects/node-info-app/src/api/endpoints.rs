@@ -36,8 +36,8 @@ pub async fn get_node_address(address: &str) -> NodeAddress {
 /// @author GeorgiKostadinovPro
 /// @notice get request fn for node tx
 /// @dev custom async get request fn for node tx
-pub async fn get_node_tx(txId: &str) -> NodeTx {
-    let url = [HOST_BASE, "v2/tx/", &txId].join("");
+pub async fn get_node_tx(tx_id: &str) -> NodeTx {
+    let url = [HOST_BASE, "v2/tx/", &tx_id].join("");
     let res = request(&url).await;
     serde_json::from_str(&res).expect(SERIALIZATION_NOT_SUCCESSFUL)
 }
