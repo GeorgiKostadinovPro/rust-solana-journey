@@ -1,4 +1,10 @@
-# A simple app which reads information from the Bitcoin Blockchain
+# A console app, built on top of a rest api for reading node and wallet data from Bitcoin main chain
+
+## Topics learned:
+
+- Asynchronous programming, concurrency and multithreading in Rust.
+- Building and sending HTTP requests to an API using reqwest HTTP client.
+- Serializing and Deserializing structs in Rust using serde framework.
 
 ## Flow in steps:
 

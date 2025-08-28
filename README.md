@@ -12,4 +12,5 @@ Resources (excluding personal research for articles, videos, security newsletter
 
 ## Projects
 
-1. [blockchain-info-app](./rust_basic_projects/blockchain-info-app/)
+1. [explore-the-maze]() - a roguelike game in which the player explores a random generated maze, etc.
+2. [node-info-app](./rust_basic_projects/blockchain-info-app/) - a console app, built on top of a rest api for reading node and wallet data from Bitcoin main chain.
