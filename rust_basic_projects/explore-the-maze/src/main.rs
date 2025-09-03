@@ -1,21 +1,12 @@
 use tcod::colors::*;
 use tcod::console::*;
 
-// game title
-const GAME_TITLE: &str = "Explore the Maze";
+// register modules in the crate
+mod models;
 
-// actual size of the window
-const SCREEN_WIDTH: i32 = 80;
-const SCREEN_HEIGHT: i32 = 50;
-
-// max 20 frames-per-second
-const LIMIT_FPS: i32 = 20;
-
-// encapsulate libtcod related values
-struct Tcod {
-    root: Root,
-    offscreen: Offscreen
-}
+// import modules from crate
+use crate::models::tcod_db::*;
+use crate::models::object::Object;
 
 /// @title handle_player_actions
 /// @author GeorgiKostadinovPro
