@@ -2,6 +2,7 @@
 
 ## Topics learned:
 
+- refactoring and SoC
 - Asynchronous programming, concurrency and multithreading in Rust.
 - Building and sending HTTP requests to an API using reqwest HTTP client.
 - Serializing and Deserializing structs in Rust using serde framework.
