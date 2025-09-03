@@ -14,6 +14,7 @@ const LIMIT_FPS: i32 = 20;
 // encapsulate libtcod related values
 struct Tcod {
     root: Root,
+    offscreen: Offscreen
 }
 
 /// @title handle_player_actions
@@ -66,8 +67,11 @@ fn main() {
     .title(GAME_TITLE)
     .init();
 
+    // use offscreen console for transparency effects and rendring part of the main root window
+    let offscreen = Offscreen::new(SCREEN_WIDTH, SCREEN_HEIGHT);
+
     // init the root options
-    let mut tcod = Tcod { root };
+    let mut tcod = Tcod { root, offscreen };
 
     // player coordinates
     // changable on arrow key pressing
@@ -78,11 +82,16 @@ fn main() {
     // the loop will be executed 20 times a second (limit fps = 20)
     while !tcod.root.window_closed() {
         // the color of all elements
-        tcod.root.set_default_foreground(WHITE);
+        tcod.offscreen.set_default_foreground(WHITE);
         // clear console of elements from previous frame
-        tcod.root.clear();
+        tcod.offscreen.clear();
         // draw player at coo (1, 1), ignore the default background color
-        tcod.root.put_char(player_x, player_y, '@', BackgroundFlag::None);
+        tcod.offscreen.put_char(player_x, player_y, '@', BackgroundFlag::None);
+
+        // blit the contents of "offscreen" to the root console and present it
+        // blit(from, start coo, width and height of area to blit, to, start blit from coo, transparency)
+        blit(&tcod.offscreen, (0, 0), (SCREEN_WIDTH, SCREEN_HEIGHT), &mut tcod.root, (0, 0), 1.0, 1.0);
+
         // draw everything on the wondow at once
         tcod.root.flush();
         // necessary because libtcod handles the window manager’s events in the input processing code
