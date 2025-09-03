@@ -12,7 +12,7 @@ use crate::models::object::Object;
 /// @author GeorgiKostadinovPro
 /// @notice keyboard handling fn
 /// @dev custom fn to handle keyboard interaction
-fn handle_player_actions(tcod: &mut Tcod, player_x: &mut i32, player_y: &mut i32) -> bool {
+fn handle_player_actions(tcod: &mut Tcod, player: &mut Object) -> bool {
     use tcod::input::Key;
     use tcod::input::KeyCode::*;
 
@@ -35,10 +35,10 @@ fn handle_player_actions(tcod: &mut Tcod, player_x: &mut i32, player_y: &mut i32
             tcod.root.set_fullscreen(!fullscreen);
         }
         Key { code: Escape, .. } => return true,
-        Key { code: Up, .. } => *player_y -= 1,
-        Key { code: Down, .. } => *player_y += 1,
-        Key { code: Left, .. } => *player_x -= 1,
-        Key { code: Right, .. } => *player_x += 1,
+        Key { code: Up, .. } => player.move_by(0, -1),
+        Key { code: Down, .. } => player.move_by(0, 1),
+        Key { code: Left, .. } => player.move_by(-1, 0),
+        Key { code: Right, .. } => player.move_by(1, 0),
         _ => {}
     }
 
@@ -64,20 +64,25 @@ fn main() {
     // init the root options
     let mut tcod = Tcod { root, offscreen };
 
-    // player coordinates
-    // changable on arrow key pressing
-    let mut player_x = SCREEN_WIDTH / 2;
-    let mut player_y = SCREEN_HEIGHT / 2;
+    // init a player
+    let player = Object::new(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, '@', WHITE);
+
+    // init an NPC
+    let npc = Object::new(SCREEN_WIDTH / 2 - 5, SCREEN_HEIGHT / 2, '@', YELLOW);
+
+    // current entities
+    let mut entities = [player, npc];
 
     // start the game loop until the window is closed
     // the loop will be executed 20 times a second (limit fps = 20)
     while !tcod.root.window_closed() {
-        // the color of all elements
-        tcod.offscreen.set_default_foreground(WHITE);
         // clear console of elements from previous frame
         tcod.offscreen.clear();
-        // draw player at coo (1, 1), ignore the default background color
-        tcod.offscreen.put_char(player_x, player_y, '@', BackgroundFlag::None);
+
+        // draw entities to offscreen console
+        for entity in &entities {
+            entity.draw(&mut tcod.offscreen);
+        }
 
         // blit the contents of "offscreen" to the root console and present it
         // blit(from, start coo, width and height of area to blit, to, start blit from coo, transparency)
@@ -90,7 +95,7 @@ fn main() {
         tcod.root.wait_for_keypress(true);
 
         // handle actions and exit game if needed
-        let exit = handle_player_actions(&mut tcod, &mut player_x, &mut player_y);
+        let exit = handle_player_actions(&mut tcod, &mut entities[0]);
         if exit {
             break;
         }
