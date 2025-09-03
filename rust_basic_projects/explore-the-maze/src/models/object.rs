@@ -3,6 +3,7 @@ use tcod::console::{Console, BackgroundFlag};
 
 /// This is a generic object: the player, a monster, an item, the stairs...
 /// It's always represented by a character on screen.
+#[derive(Debug)]
 pub struct Object {
     x: i32,
     y: i32,
