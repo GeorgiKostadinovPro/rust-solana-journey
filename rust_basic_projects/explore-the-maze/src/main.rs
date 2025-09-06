@@ -5,6 +5,7 @@ use tcod::console::*;
 mod models;
 
 // import modules from crate
+use crate::models::maze::*;
 use crate::models::tcod_db::*;
 use crate::models::object::Object;
 

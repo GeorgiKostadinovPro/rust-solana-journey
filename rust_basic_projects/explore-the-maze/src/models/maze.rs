@@ -40,3 +40,17 @@ impl Tile {
     }
 }
 
+/// @title create_maze
+/// @author GeorgiKostadinovPro
+/// @notice create a custom jagged maze
+/// @dev custom fn to create a custom jagged maze (80 inner vectors with 45 Tiles each)
+pub fn create_maze() -> Maze {
+    // fill map with "unblocked" tiles
+    let mut maze = vec![vec![Tile::empty(); MAZE_HEIGHT as usize]; MAZE_WIDTH as usize];
+
+    // place some walls - will randomize later
+    maze[30][22] = Tile::wall();
+    maze[50][22] = Tile::wall();
+
+    maze
+}
