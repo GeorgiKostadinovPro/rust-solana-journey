@@ -1,27 +1,29 @@
 use tcod::colors::Color;
 
 // size of the maze
-const MAZE_WIDTH: i32 = 80;
-const MAZE_HEIGHT: i32 = 45;
+pub const MAZE_WIDTH: i32 = 80;
+pub const MAZE_HEIGHT: i32 = 45;
 
 // colors of the tiles wall and ground
-const COLOR_DARK_WALL: Color = Color { r: 0, g: 0, b: 100 };
-const COLOR_DARK_GROUND: Color = Color {r: 50, g: 50, b: 150 };
+pub const COLOR_DARK_WALL: Color = Color { r: 0, g: 0, b: 100 };
+pub const COLOR_DARK_GROUND: Color = Color {r: 50, g: 50, b: 150 };
 
 // custom type Maze - two dimentional array / jagged array
 type Maze = Vec<Vec<Tile>>;
 
-struct Game {
-    map: Maze
+// the main game object
+// maze is the map to be explored - a jagged array
+pub struct Game {
+    pub maze: Maze
 }
 
 // A tile of the maze and its properties
 // clone & Copy - copy values as arguments instead of borrow
 // Debug - print tile content
 #[derive(Clone, Copy, Debug)]
-struct Tile {
-    blocked: bool,
-    block_sight: bool,
+pub struct Tile {
+    pub blocked: bool,
+    pub block_sight: bool
 }
 
 impl Tile {

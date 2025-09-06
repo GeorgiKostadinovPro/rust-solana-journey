@@ -9,6 +9,54 @@ use crate::models::maze::*;
 use crate::models::tcod_db::*;
 use crate::models::object::Object;
 
+/// @title render_maze
+/// @author GeorgiKostadinovPro
+/// @notice render the whole mmap with its elements
+/// @dev custom fn to render a custom jagged maze with its elements
+pub fn render_maze(tcod: &mut Tcod, game: &Game, objects: &[Object]) {
+    for object in objects {
+        object.draw(&mut tcod.offscreen);
+    }
+
+    // go through all tiles, and set their background color
+    // visit each inner vector
+    for i in 0..MAZE_WIDTH {
+        // visit each element in vector
+        for j in 0..MAZE_HEIGHT {
+            // if view is blocked then this is a wall
+            let isWall = game.maze[i as usize][j as usize].block_sight;
+
+            // if wall drew it otherwise it is a ground tile
+            if isWall {
+                tcod.offscreen.set_char_background(i, j, COLOR_DARK_WALL, BackgroundFlag::Set);
+            } else {
+                tcod.offscreen.set_char_background(i, j, COLOR_DARK_GROUND, BackgroundFlag::Set);
+            }
+        }
+    }   
+
+    // blit the contents of "offscreen" to the root console and present it
+    // blit(from, start coo, width and height of area to blit, to, start blit from coo, transparency)
+    // From now on, the offscreen console object will represent only the map
+    blit(&tcod.offscreen, (0, 0), (MAZE_WIDTH, MAZE_HEIGHT), &mut tcod.root, (0, 0), 1.0, 1.0);
+
+    /*
+    // go through all tiles, and set their background color
+    for y in 0..MAP_HEIGHT {
+        for x in 0..MAP_WIDTH {
+            let wall = game.map[x as usize][y as usize].block_sight;
+            if wall {
+                tcod.con
+                    .set_char_background(x, y, COLOR_DARK_WALL, BackgroundFlag::Set);
+            } else {
+                tcod.con
+                .set_char_background(x, y, COLOR_DARK_GROUND, BackgroundFlag::Set);
+            }
+        }
+    }
+    */
+}
+
 /// @title handle_player_actions
 /// @author GeorgiKostadinovPro
 /// @notice keyboard handling fn
@@ -60,10 +108,14 @@ fn main() {
     .init();
 
     // use offscreen console for transparency effects and rendring part of the main root window
-    let offscreen = Offscreen::new(SCREEN_WIDTH, SCREEN_HEIGHT);
+    // maze is smaller than root console, the empty space will be used for healthy bar, messages, etc
+    let offscreen = Offscreen::new(MAZE_WIDTH, MAZE_HEIGHT);
 
     // init the root options
     let mut tcod = Tcod { root, offscreen };
+
+    // init game and create a maze ref maze.rs for more docs
+    let game = Game { maze: create_maze() }; 
 
     // init a player
     let player = Object::new(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, '@', WHITE);
@@ -80,14 +132,7 @@ fn main() {
         // clear console of elements from previous frame
         tcod.offscreen.clear();
 
-        // draw entities to offscreen console
-        for entity in &entities {
-            entity.draw(&mut tcod.offscreen);
-        }
-
-        // blit the contents of "offscreen" to the root console and present it
-        // blit(from, start coo, width and height of area to blit, to, start blit from coo, transparency)
-        blit(&tcod.offscreen, (0, 0), (SCREEN_WIDTH, SCREEN_HEIGHT), &mut tcod.root, (0, 0), 1.0, 1.0);
+        render_maze(&mut tcod, &game, &entities);
 
         // draw everything on the wondow at once
         tcod.root.flush();
