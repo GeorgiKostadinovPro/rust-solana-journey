@@ -1,6 +1,8 @@
 use tcod::colors::Color;
 use tcod::console::{Console, BackgroundFlag};
 
+use crate::models::maze::Maze;
+
 /// This is a generic object: the player, a monster, an item, the stairs...
 /// It's always represented by a character on screen.
 #[derive(Debug)]
@@ -18,7 +20,16 @@ impl Object {
     }
 
     // move by the given amount
-    pub fn move_by(&mut self, dx: i32, dy: i32) {
+    // if wall return
+    pub fn move_by(&mut self, maze: &Maze, dx: i32, dy: i32) {
+        // add the new deltas to the current player x, y 
+        // check that his next position is not a wall
+        let isWall = maze[(self.x + dx) as usize][(self.y + dy) as usize].blocked;
+
+        if isWall {
+            return;
+        }
+
         self.x += dx;
         self.y += dy;
     }

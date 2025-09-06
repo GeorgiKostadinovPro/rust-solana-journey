@@ -9,7 +9,7 @@ pub const COLOR_DARK_WALL: Color = Color { r: 0, g: 0, b: 100 };
 pub const COLOR_DARK_GROUND: Color = Color {r: 50, g: 50, b: 150 };
 
 // custom type Maze - two dimentional array / jagged array
-type Maze = Vec<Vec<Tile>>;
+pub type Maze = Vec<Vec<Tile>>;
 
 // the main game object
 // maze is the map to be explored - a jagged array

@@ -39,29 +39,13 @@ pub fn render_maze(tcod: &mut Tcod, game: &Game, objects: &[Object]) {
     // blit(from, start coo, width and height of area to blit, to, start blit from coo, transparency)
     // From now on, the offscreen console object will represent only the map
     blit(&tcod.offscreen, (0, 0), (MAZE_WIDTH, MAZE_HEIGHT), &mut tcod.root, (0, 0), 1.0, 1.0);
-
-    /*
-    // go through all tiles, and set their background color
-    for y in 0..MAP_HEIGHT {
-        for x in 0..MAP_WIDTH {
-            let wall = game.map[x as usize][y as usize].block_sight;
-            if wall {
-                tcod.con
-                    .set_char_background(x, y, COLOR_DARK_WALL, BackgroundFlag::Set);
-            } else {
-                tcod.con
-                .set_char_background(x, y, COLOR_DARK_GROUND, BackgroundFlag::Set);
-            }
-        }
-    }
-    */
 }
 
 /// @title handle_player_actions
 /// @author GeorgiKostadinovPro
 /// @notice keyboard handling fn
 /// @dev custom fn to handle keyboard interaction
-fn handle_player_actions(tcod: &mut Tcod, player: &mut Object) -> bool {
+fn handle_player_actions(tcod: &mut Tcod, maze: &Maze, player: &mut Object) -> bool {
     use tcod::input::Key;
     use tcod::input::KeyCode::*;
 
@@ -84,10 +68,10 @@ fn handle_player_actions(tcod: &mut Tcod, player: &mut Object) -> bool {
             tcod.root.set_fullscreen(!fullscreen);
         }
         Key { code: Escape, .. } => return true,
-        Key { code: Up, .. } => player.move_by(0, -1),
-        Key { code: Down, .. } => player.move_by(0, 1),
-        Key { code: Left, .. } => player.move_by(-1, 0),
-        Key { code: Right, .. } => player.move_by(1, 0),
+        Key { code: Up, .. } => player.move_by(maze, 0, -1),
+        Key { code: Down, .. } => player.move_by(maze, 0, 1),
+        Key { code: Left, .. } => player.move_by(maze, -1, 0),
+        Key { code: Right, .. } => player.move_by(maze, 1, 0),
         _ => {}
     }
 
@@ -141,7 +125,7 @@ fn main() {
         tcod.root.wait_for_keypress(true);
 
         // handle actions and exit game if needed
-        let exit = handle_player_actions(&mut tcod, &mut entities[0]);
+        let exit = handle_player_actions(&mut tcod, &game.maze, &mut entities[0]);
         if exit {
             break;
         }
