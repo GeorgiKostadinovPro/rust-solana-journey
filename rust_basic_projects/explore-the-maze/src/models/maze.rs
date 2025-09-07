@@ -1,3 +1,4 @@
+use std::cmp;
 use tcod::colors::Color;
 
 // size of the maze
@@ -85,12 +86,19 @@ fn create_room(room: Room, maze: &mut Maze) {
 fn create_tunnel(maze: &mut Maze, x1: i32, x2: i32, y1: i32, y2: i32, isHorizontal: bool) {
     // the tunner can be horizontal or vertical - isHorizontal
     // isHorizontal - loop in maze only on rows, not cols
+    // in rust jagged array x - cols, y - rows. In C# x - rows, y - cols
     // x1 and x2 are the start and end, y1 is the height, y2 = 0 not needed
     // !isHorizontal - tunner is vertical loop only through cols, not rows
     // y1 and y2 are the start and end, x1 is the width, x2 = 0 not needed
+    // min & max ensure that we always start with the smaller number (1, 5) is the same as (5, 1)
+    // otherwise the for loop will not produce result
     if isHorizontal {
-        for x in x1..x2 {
+        for x in cmp::min(x1, x2)..cmp::max(x1, x2) {
             maze[x as usize][y1 as usize] = Tile::empty();
+        }
+    } else {
+        for y in cmp::min(y1, y2)..cmp::max(y1, y2) {
+            maze[x1 as usize][y as usize] = Tile::empty();
         }
     }
 }
