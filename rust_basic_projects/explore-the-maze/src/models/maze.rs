@@ -1,4 +1,5 @@
 use std::cmp;
+use rand::Rng;
 use tcod::colors::Color;
 
 // size of the maze
@@ -8,6 +9,11 @@ pub const MAZE_HEIGHT: i32 = 45;
 // colors of the tiles wall and ground
 pub const COLOR_DARK_WALL: Color = Color { r: 0, g: 0, b: 100 };
 pub const COLOR_DARK_GROUND: Color = Color {r: 50, g: 50, b: 150 };
+
+// max num of room + max/min size of rooms
+const MAX_ROOMS: i32 = 30;
+pub const ROOM_MIN_SIZE: i32 = 5;
+pub const ROOM_MAX_SIZE: i32 = 10;
 
 // custom type Maze - two dimentional array / jagged array
 pub type Maze = Vec<Vec<Tile>>;
@@ -61,6 +67,24 @@ impl Room {
             x2: x + w,
             y2: y + h,
         }
+    }
+
+    // find the xenter of each room 
+    // e.g top left (10, 10), bottom right (20, 20) => center ((x1 + x2) / 2, (y1 + y2) / 2) = (15, 15)
+    pub fn center(&self) -> (i32, i32) {
+        let center_x = (self.x1 + self.x2) / 2;
+        let center_y = (self.y1 + self.y2) / 2;
+        (center_x, center_y)
+    }
+
+    // check if two rooms intersect
+    // ensure no rooms go over each other
+    pub fn intersects_with(&self, other: &Room) -> bool {
+        // returns true if this intersects with another one
+        (self.x1 <= other.x2)
+            && (self.x2 >= other.x1)
+            && (self.y1 <= other.y2)
+            && (self.y2 >= other.y1)
     }
 }
 
