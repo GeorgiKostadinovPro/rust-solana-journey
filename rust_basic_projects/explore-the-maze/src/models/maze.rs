@@ -87,14 +87,11 @@ pub fn create_maze() -> Maze {
     let mut maze = vec![vec![Tile::wall(); MAZE_HEIGHT as usize]; MAZE_WIDTH as usize];
 
     // place some rooms - will randomize later
-    let room = Room { 
-        x1: MAZE_WIDTH / 2 - 10, 
-        y1: MAZE_HEIGHT / 2 - 10,
-        x2: MAZE_WIDTH / 2 + 10,
-        y2: MAZE_HEIGHT / 2 + 10
-    };
+    let room1 = Room::new(20, 15, 10, 15);
+    let room2 = Room::new(50, 15, 10, 15);
 
-    create_room(room, &mut maze);
+    create_room(room1, &mut maze);
+    create_room(room2, &mut maze);
 
     maze
 }

@@ -102,10 +102,10 @@ fn main() {
     let game = Game { maze: create_maze() }; 
 
     // init a player
-    let player = Object::new(MAZE_WIDTH / 2, MAZE_HEIGHT / 2, '@', WHITE);
+    let player = Object::new(25, 23, '@', WHITE);
 
     // init an NPC
-    let npc = Object::new(MAZE_WIDTH / 2 - 5, MAZE_HEIGHT / 2, '@', YELLOW);
+    let npc = Object::new(SCREEN_WIDTH / 2 - 5, SCREEN_HEIGHT / 2, '@', YELLOW);
 
     // current entities
     let mut entities = [player, npc];
