@@ -42,6 +42,40 @@ impl Tile {
     }
 }
 
+/// Room struct for a maze room
+#[derive(Clone, Copy, Debug)]
+struct Room {
+    x1: i32,
+    y1: i32,
+    x2: i32,
+    y2: i32,
+}
+
+impl Room {
+    pub fn new(x: i32, y: i32, w: i32, h: i32) -> Self {
+        Room {
+            x1: x,
+            y1: y,
+            x2: x + w,
+            y2: y + h,
+        }
+    }
+}
+
+/// @title create_room
+/// @author GeorgiKostadinovPro
+/// @notice create a custom room in maze
+/// @dev custom fn to create an empty custom room within maze ((x, y), (x + dx, y + dy))
+fn create_room(room: Room, maze: &mut Maze) {
+    // go through the tiles in the room and make them passable
+    // from x + 1 and y1 + 1 so that only inside the room is empty, not the walls
+    for x in (room.x1 + 1)..room.x2 {
+        for y in (room.y1 + 1)..room.y2 {
+            maze[x as usize][y as usize] = Tile::empty();
+        }
+    }
+}
+
 /// @title create_maze
 /// @author GeorgiKostadinovPro
 /// @notice create a custom jagged maze
