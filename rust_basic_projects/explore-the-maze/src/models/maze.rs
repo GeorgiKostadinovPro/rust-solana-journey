@@ -113,7 +113,7 @@ fn create_tunnel(maze: &mut Maze, x1: i32, x2: i32, y1: i32, y2: i32, isHorizont
     // isHorizontal - loop in maze only on rows, not cols
     // in rust jagged array x - cols, y - rows. In C# x - rows, y - cols
     // x1 and x2 are the start and end, y1 is the height, y2 = 0 not needed
-    // !isHorizontal - tunner is vertical loop only through cols, not rows
+    // !isHorizontal - tunnel is vertical loop only through cols, not rows
     // y1 and y2 are the start and end, x1 is the width, x2 = 0 not needed
     // min & max ensure that we always start with the smaller number (1, 5) is the same as (5, 1)
     // otherwise the for loop will not produce result
@@ -162,9 +162,6 @@ pub fn create_maze(player: &mut Object) -> Maze {
             continue;
         }
 
-        // if room is valid add it and use it to check the next one
-        rooms.push(room);
-
         // insert the room in the maze with empty tiles
         create_room(room, &mut maze);
 
@@ -172,11 +169,32 @@ pub fn create_maze(player: &mut Object) -> Maze {
         let (center_x, center_y) = room.center();
 
         // if this room is the first put the player inside
+        // for every other room try to connect it via a tunnel to the previous one
         if rooms.is_empty() {
             // this is the first room, where the player starts at
             player.x = center_x;
             player.y = center_y;
+        } else {
+            // all rooms after the first:
+            // connect it to the previous room with a tunnel
+
+            // center coordinates of the previous room (the curr last room)
+            let (prev_x, prev_y) = rooms[rooms.len() - 1].center();
+
+            // toss a coin (random bool value -- either true or false)
+            if rand::random() {
+                // first move horizontally, then vertically
+                create_tunnel(&mut maze, prev_x, center_x, prev_y, 0, true);
+                create_tunnel(&mut maze, center_x, 0, prev_y, center_y, false);
+            } else {
+                // first move vertically, then horizontally
+                create_tunnel(&mut maze, prev_x, 0, prev_y, center_y, false);
+                create_tunnel(&mut maze, prev_x, center_x, center_y, 0, true);
+            }
         }
+
+        // add room and use it to check the next ones
+        rooms.push(room);
     } 
 
     maze
