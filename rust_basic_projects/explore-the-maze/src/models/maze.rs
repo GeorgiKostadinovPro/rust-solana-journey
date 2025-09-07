@@ -42,7 +42,8 @@ impl Tile {
     }
 }
 
-/// Room struct for a maze room
+// Room struct for a maze room
+// Use Clone & Copy traits to not pass Room as a reference each time
 #[derive(Clone, Copy, Debug)]
 struct Room {
     x1: i32,
@@ -69,6 +70,7 @@ impl Room {
 fn create_room(room: Room, maze: &mut Maze) {
     // go through the tiles in the room and make them passable
     // from x + 1 and y1 + 1 so that only inside the room is empty, not the walls
+    // A..B means A is inclused up to B (exclusive)
     for x in (room.x1 + 1)..room.x2 {
         for y in (room.y1 + 1)..room.y2 {
             maze[x as usize][y as usize] = Tile::empty();
@@ -82,11 +84,17 @@ fn create_room(room: Room, maze: &mut Maze) {
 /// @dev custom fn to create a custom jagged maze (80 inner vectors with 45 Tiles each)
 pub fn create_maze() -> Maze {
     // fill map with "unblocked" tiles
-    let mut maze = vec![vec![Tile::empty(); MAZE_HEIGHT as usize]; MAZE_WIDTH as usize];
+    let mut maze = vec![vec![Tile::wall(); MAZE_HEIGHT as usize]; MAZE_WIDTH as usize];
 
-    // place some walls - will randomize later
-    maze[30][22] = Tile::wall();
-    maze[50][22] = Tile::wall();
+    // place some rooms - will randomize later
+    let room = Room { 
+        x1: MAZE_WIDTH / 2 - 10, 
+        y1: MAZE_HEIGHT / 2 - 10,
+        x2: MAZE_WIDTH / 2 + 10,
+        y2: MAZE_HEIGHT / 2 + 10
+    };
+
+    create_room(room, &mut maze);
 
     maze
 }
