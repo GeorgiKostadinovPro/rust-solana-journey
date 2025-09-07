@@ -96,19 +96,17 @@ fn main() {
     let offscreen = Offscreen::new(MAZE_WIDTH, MAZE_HEIGHT);
 
     // init the root options
-    let mut tcod = Tcod { root, offscreen };
-
-    // init game and create a maze ref maze.rs for more docs
-    let game = Game { maze: create_maze() }; 
+    let mut tcod = Tcod { root, offscreen };    
 
     // init a player
-    let player = Object::new(25, 23, '@', WHITE);
-
-    // init an NPC
-    let npc = Object::new(40, 23, '@', YELLOW);
-
+    let player = Object::new(25, 23, '@', WHITE);    
+    
     // current entities
-    let mut entities = [player, npc];
+    let mut entities = [player];
+
+    // init game and create a maze ref maze.rs for more docs
+    // player will be placed in the center of the first generated room
+    let game = Game { maze: create_maze(&mut entities[0]) }; 
 
     // start the game loop until the window is closed
     // the loop will be executed 20 times a second (limit fps = 20)

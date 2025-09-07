@@ -1,6 +1,7 @@
 use std::cmp;
 use rand::Rng;
 use tcod::colors::Color;
+use crate::models::object::Object;
 
 // size of the maze
 pub const MAZE_WIDTH: i32 = 80;
@@ -131,18 +132,52 @@ fn create_tunnel(maze: &mut Maze, x1: i32, x2: i32, y1: i32, y2: i32, isHorizont
 /// @author GeorgiKostadinovPro
 /// @notice create a custom jagged maze
 /// @dev custom fn to create a custom jagged maze (80 inner vectors with 45 Tiles each)
-pub fn create_maze() -> Maze {
+pub fn create_maze(player: &mut Object) -> Maze {
     // fill map with "unblocked" tiles
     let mut maze = vec![vec![Tile::wall(); MAZE_HEIGHT as usize]; MAZE_WIDTH as usize];
 
-    // place some rooms - will randomize later
-    let room1 = Room::new(20, 15, 10, 15);
-    let room2 = Room::new(50, 15, 10, 15);
+    // after populating the vec => loop it and call create_room()
+    let mut rooms = vec![];
 
-    create_room(room1, &mut maze);
-    create_room(room2, &mut maze);
+    // generate rooms and tunnels on random
+    for _ in 0..MAX_ROOMS {
+        // random width and height
+        let w = rand::thread_rng().gen_range(ROOM_MIN_SIZE, ROOM_MAX_SIZE + 1);
+        let h = rand::thread_rng().gen_range(ROOM_MIN_SIZE, ROOM_MAX_SIZE + 1);
+        // random position without going out of the boundaries of the map
+        // maze is 80x45 ensure room start (x1, y1) (x1 + w, y2 + h) <= borders
+        let x = rand::thread_rng().gen_range(0, MAZE_WIDTH - w);
+        let y = rand::thread_rng().gen_range(0, MAZE_HEIGHT - h);
 
-    create_tunnel(&mut maze, 25, 55, 23, 0, true);
+        // init a room
+        let room = Room::new(x, y, w, h);
+
+        // loop the other rooms and see if any intersect with this one
+        // if ture any() will abort and return true
+        let failed = rooms
+            .iter()
+            .any(|other_room| room.intersects_with(other_room));
+
+        if failed {
+            continue;
+        }
+
+        // if room is valid add it and use it to check the next one
+        rooms.push(room);
+
+        // insert the room in the maze with empty tiles
+        create_room(room, &mut maze);
+
+        // get the center of the room to place the player
+        let (center_x, center_y) = room.center();
+
+        // if this room is the first put the player inside
+        if rooms.is_empty() {
+            // this is the first room, where the player starts at
+            player.x = center_x;
+            player.y = center_y;
+        }
+    } 
 
     maze
 }
