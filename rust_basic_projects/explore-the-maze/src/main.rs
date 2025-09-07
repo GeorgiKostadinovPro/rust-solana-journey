@@ -105,24 +105,26 @@ fn main() {
     let player = Object::new(25, 23, '@', WHITE);
 
     // init an NPC
-    let npc = Object::new(SCREEN_WIDTH / 2 - 5, SCREEN_HEIGHT / 2, '@', YELLOW);
+    let npc = Object::new(40, 23, '@', YELLOW);
 
     // current entities
     let mut entities = [player, npc];
 
     // start the game loop until the window is closed
     // the loop will be executed 20 times a second (limit fps = 20)
+    // golden rule for roguelikes turn-based:
+    // 1. Render: clear screen => draw game on screen => flush to root
+    // 2. Input: block until a key is pressed
+    // 3. Update: match key and change player's coordinates
+    // 4. Repeat
     while !tcod.root.window_closed() {
         // clear console of elements from previous frame
         tcod.offscreen.clear();
 
         render_maze(&mut tcod, &game, &entities);
 
-        // draw everything on the wondow at once
+        // flush to root so the window shows the frame
         tcod.root.flush();
-        // necessary because libtcod handles the window manager’s events in the input processing code
-        // without it the window_closed() will not work, crashing or hanging the game
-        tcod.root.wait_for_keypress(true);
 
         // handle actions and exit game if needed
         let exit = handle_player_actions(&mut tcod, &game.maze, &mut entities[0]);

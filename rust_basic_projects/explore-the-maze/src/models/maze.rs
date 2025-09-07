@@ -78,6 +78,23 @@ fn create_room(room: Room, maze: &mut Maze) {
     }
 }
 
+/// @title create_room
+/// @author GeorgiKostadinovPro
+/// @notice create a custom tunnel in maze
+/// @dev custom fn to create an empty custom tunnel within maze
+fn create_tunnel(maze: &mut Maze, x1: i32, x2: i32, y1: i32, y2: i32, isHorizontal: bool) {
+    // the tunner can be horizontal or vertical - isHorizontal
+    // isHorizontal - loop in maze only on rows, not cols
+    // x1 and x2 are the start and end, y1 is the height, y2 = 0 not needed
+    // !isHorizontal - tunner is vertical loop only through cols, not rows
+    // y1 and y2 are the start and end, x1 is the width, x2 = 0 not needed
+    if isHorizontal {
+        for x in x1..x2 {
+            maze[x as usize][y1 as usize] = Tile::empty();
+        }
+    }
+}
+
 /// @title create_maze
 /// @author GeorgiKostadinovPro
 /// @notice create a custom jagged maze
@@ -92,6 +109,8 @@ pub fn create_maze() -> Maze {
 
     create_room(room1, &mut maze);
     create_room(room2, &mut maze);
+
+    create_tunnel(&mut maze, 25, 55, 23, 0, true);
 
     maze
 }
