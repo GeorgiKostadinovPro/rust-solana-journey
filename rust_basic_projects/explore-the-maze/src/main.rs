@@ -16,27 +16,50 @@ use crate::models::entity::PlayerAction::{TookTurn, DidntTakeTurn, Exit};
 /// @author GeorgiKostadinovPro
 /// @notice render the whole maze with its elements and entities
 /// @dev custom fn to render a custom jagged maze with its elements and entities
-pub fn render_maze(tcod: &mut Tcod, game: &Game, entities: &[Entity]) {
-    for entity in entities {
-        entity.draw(&mut tcod.offscreen);
+pub fn render_maze(tcod: &mut Tcod, game: &Game, entities: &[Entity], fov_recompute: bool) {
+    if fov_recompute {
+        // recompute FOV if needed (the player has moved)
+        // move fov with the player
+        let player = &entities[0];
+
+        tcod.fov
+            .compute_fov(player.x, player.y, TORCH_RADIUS, FOV_LIGHT_WALLS, FOV_ALGO);
     }
 
     // go through all tiles, and set their background color
     // visit each inner vector
-    for i in 0..MAZE_WIDTH {
+    for x in 0..MAZE_WIDTH {
         // visit each element in vector
-        for j in 0..MAZE_HEIGHT {
-            // if view is blocked then this is a wall
-            let is_wall = game.maze[i as usize][j as usize].block_sight;
+        for y in 0..MAZE_HEIGHT {
+            // check if location is visible
+            let is_visible = tcod.fov.is_in_fov(x, y);
 
-            // if wall drew it otherwise it is a ground tile
-            if is_wall {
-                tcod.offscreen.set_char_background(i, j, COLOR_DARK_WALL, BackgroundFlag::Set);
-            } else {
-                tcod.offscreen.set_char_background(i, j, COLOR_DARK_GROUND, BackgroundFlag::Set);
-            }
+            // if view is blocked then this is a wall
+            let is_wall = game.maze[x as usize][y as usize].block_sight;
+
+            // if wall or ground is visible then lighten them
+            // otherwise is not visible set dark colors
+            let color = match (is_visible, is_wall) {
+                // outside of field of view:
+                (false, true) => COLOR_DARK_WALL,
+                (false, false) => COLOR_DARK_GROUND,
+                // inside fov:
+                (true, true) => COLOR_LIGHT_WALL,
+                (true, false) => COLOR_LIGHT_GROUND
+            };
+
+            tcod.offscreen
+                .set_char_background(x, y, color, BackgroundFlag::Set);
         }
     }   
+
+    // draw all entities in the list
+    // if entity is in FOV then draw it
+    for entity in entities {
+        if tcod.fov.is_in_fov(entity.x, entity.y) {
+            entity.draw(&mut tcod.offscreen);
+        }
+    }
 
     // blit the contents of "offscreen" to the root console and present it
     // blit(from, start coo, width and height of area to blit, to, start blit from coo, transparency)
@@ -166,6 +189,25 @@ fn main() {
     // monters will be placed within each generated room on random
     let game = Game { maze: create_maze(&mut entities) }; 
 
+    // populate the FOV map, according to the generated maze
+    // the libtcod FOV module needs to know which tiles block sight
+    // ToDo: extract in fn()
+    for x in 0..MAZE_WIDTH {
+        for y in 0..MAZE_HEIGHT {
+            tcod.fov.set(
+                x,
+                y,
+                !game.maze[x as usize][y as usize].block_sight,
+                !game.maze[x as usize][y as usize].blocked,
+            );
+        }
+    }
+
+    // FOV needs to be recomputed — but only if the player moves or a tile changes
+    // force FOV "recompute" first time through the game loop
+    // using (-1, -1) to make sure FOV gets computed on the first time through the loop
+    let mut player_previous_position = (-1, -1);
+
     // start the game loop until the window is closed
     // the loop will be executed 20 times a second (limit fps = 20)
     // golden rule for roguelikes turn-based:
@@ -177,10 +219,19 @@ fn main() {
         // clear console of elements from previous frame
         tcod.offscreen.clear();
 
-        render_maze(&mut tcod, &game, &entities);
+        // recompute the fov as player moves around
+        // (-1, -1) != (0, 0) => recompute the fov based on the player location
+        // (0, 0) != (x, y) => player has moved => move the fov with him
+        let fov_recompute = player_previous_position != (entities[0].x, entities[0].y);
+
+        render_maze(&mut tcod, &game, &entities, fov_recompute);
 
         // flush to root so the window shows the frame
         tcod.root.flush();
+
+        // (0, 0) on the first run then player (x, y) will change from keyboard action
+        // (x, y) on the second run then player (x, y) will change again
+        player_previous_position = (entities[0].x, entities[0].y);
 
         // handle actions and exit game if needed
         // entities are vec but fn accepts &mut [Entity] 

@@ -9,10 +9,10 @@ pub const MAZE_HEIGHT: i32 = 45;
 
 // colors of the tiles - wall and ground
 pub const COLOR_DARK_WALL: Color = Color { r: 0, g: 0, b: 100 };
-const COLOR_LIGHT_WALL: Color = Color { r: 130, g: 110, b: 50 };
+pub const COLOR_LIGHT_WALL: Color = Color { r: 130, g: 110, b: 50 };
 
 pub const COLOR_DARK_GROUND: Color = Color {r: 50, g: 50, b: 150 };
-const COLOR_LIGHT_GROUND: Color = Color { r: 200, g: 180, b: 50 };
+pub const COLOR_LIGHT_GROUND: Color = Color { r: 200, g: 180, b: 50 };
 
 // max num of room + max/min size of rooms
 const MAX_ROOMS: i32 = 30;
@@ -48,14 +48,14 @@ impl Tile {
     pub fn empty() -> Self {
         Tile {
             blocked: false,
-            block_sight: false,
+            block_sight: false
         }
     }
 
     pub fn wall() -> Self {
         Tile {
             blocked: true,
-            block_sight: true,
+            block_sight: true
         }
     }
 }
@@ -172,7 +172,7 @@ fn create_monsters(room: Room, entities: &mut Vec<Entity>) {
 /// @notice create a custom jagged maze
 /// @dev custom fn to create a custom jagged maze (80 inner vectors with 45 Tiles each)
 pub fn create_maze(entities: &mut Vec<Entity>) -> Maze {
-    // fill map with "unblocked" tiles
+    // fill maze with wall tiles, then when creating rooms, tunnels, etc wall => empty
     let mut maze = vec![vec![Tile::wall(); MAZE_HEIGHT as usize]; MAZE_WIDTH as usize];
 
     // after populating the vec => loop it and call create_room()
