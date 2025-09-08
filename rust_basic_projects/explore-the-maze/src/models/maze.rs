@@ -1,7 +1,7 @@
 use std::cmp;
 use rand::Rng;
 use tcod::colors::*;
-use crate::models::object::Object;
+use crate::models::entity::Entity;
 
 // size of the maze
 pub const MAZE_WIDTH: i32 = 80;
@@ -20,13 +20,13 @@ pub const ROOM_MAX_SIZE: i32 = 10;
 const MAX_MONSTERS_IN_ROOM: i32 = 3;
 
 // player index in entities vector
-// player will always be the first object
+// player will always be the first Entity
 pub const PLAYER: usize = 0;
 
 // custom type Maze - two dimentional array / jagged array
 pub type Maze = Vec<Vec<Tile>>;
 
-// the main game object
+// the main game Entity
 // maze is the map to be explored - a jagged array
 pub struct Game {
     pub maze: Maze
@@ -139,7 +139,7 @@ fn create_tunnel(maze: &mut Maze, x1: i32, x2: i32, y1: i32, y2: i32, is_horizon
 /// @author GeorgiKostadinovPro
 /// @notice create monsters in maze on random
 /// @dev custom fn to create monsters within maze on random
-fn create_monsters(room: Room, entities: &mut Vec<Object>) {
+fn create_monsters(room: Room, entities: &mut Vec<Entity>) {
     // choose random number of monsters
     let monsters_count = rand::thread_rng().gen_range(0, MAX_MONSTERS_IN_ROOM + 1);
 
@@ -152,13 +152,14 @@ fn create_monsters(room: Room, entities: &mut Vec<Object>) {
 
         // 80% chance of getting an orc
         // 20% - trolls
-        let monster = if rand::random::<f32>() < 0.8 {  
+        let mut monster = if rand::random::<f32>() < 0.8 {  
             // create an orc
-            Object::new(x, y, 'o', DESATURATED_GREEN)
+            Entity::new(x, y, 'o', DESATURATED_GREEN, "orc", true)
         } else {
-            Object::new(x, y, 'T', DARKER_GREEN)
+            Entity::new(x, y, 'T', DARKER_GREEN, "troll", true)
         };
 
+        monster.alive = true;
         entities.push(monster);
     }
 }
@@ -167,7 +168,7 @@ fn create_monsters(room: Room, entities: &mut Vec<Object>) {
 /// @author GeorgiKostadinovPro
 /// @notice create a custom jagged maze
 /// @dev custom fn to create a custom jagged maze (80 inner vectors with 45 Tiles each)
-pub fn create_maze(entities: &mut Vec<Object>) -> Maze {
+pub fn create_maze(entities: &mut Vec<Entity>) -> Maze {
     // fill map with "unblocked" tiles
     let mut maze = vec![vec![Tile::wall(); MAZE_HEIGHT as usize]; MAZE_WIDTH as usize];
 

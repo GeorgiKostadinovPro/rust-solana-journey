@@ -6,17 +6,20 @@ use crate::models::maze::Maze;
 /// This is a generic object: the player, a monster, an item, the stairs...
 /// It's always represented by a character on screen.
 #[derive(Debug)]
-pub struct Object {
+pub struct Entity {
     pub x: i32,
     pub y: i32,
     char: char,
     color: Color,
+    pub name: String,  
+    pub is_blocking: bool,  
+    pub alive: bool,  
 }
 
-impl Object {
+impl Entity {
     // constructor
-    pub fn new(x: i32, y: i32, char: char, color: Color) -> Self {
-        Object { x, y, char, color }
+    pub fn new(x: i32, y: i32, char: char, color: Color, name: &str, is_blocking: bool) -> Self {
+        Entity { x, y, char, color, name: name.to_string(), is_blocking, alive: false }
     }
 
     // getter

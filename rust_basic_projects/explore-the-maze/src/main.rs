@@ -7,15 +7,15 @@ mod models;
 // import modules from crate
 use crate::models::maze::*;
 use crate::models::tcod_db::*;
-use crate::models::object::Object;
+use crate::models::entity::Entity;
 
 /// @title render_maze
 /// @author GeorgiKostadinovPro
 /// @notice render the whole maze with its elements and entities
 /// @dev custom fn to render a custom jagged maze with its elements and entities
-pub fn render_maze(tcod: &mut Tcod, game: &Game, objects: &[Object]) {
-    for object in objects {
-        object.draw(&mut tcod.offscreen);
+pub fn render_maze(tcod: &mut Tcod, game: &Game, entities: &[Entity]) {
+    for entity in entities {
+        entity.draw(&mut tcod.offscreen);
     }
 
     // go through all tiles, and set their background color
@@ -37,7 +37,7 @@ pub fn render_maze(tcod: &mut Tcod, game: &Game, objects: &[Object]) {
 
     // blit the contents of "offscreen" to the root console and present it
     // blit(from, start coo, width and height of area to blit, to, start blit from coo, transparency)
-    // From now on, the offscreen console object will represent only the map
+    // From now on, the offscreen console Entity will represent only the map
     blit(&tcod.offscreen, (0, 0), (MAZE_WIDTH, MAZE_HEIGHT), &mut tcod.root, (0, 0), 1.0, 1.0);
 }
 
@@ -45,7 +45,7 @@ pub fn render_maze(tcod: &mut Tcod, game: &Game, objects: &[Object]) {
 /// @author GeorgiKostadinovPro
 /// @notice keyboard handling fn
 /// @dev custom fn to handle keyboard interaction
-fn handle_player_actions(tcod: &mut Tcod, maze: &Maze, player: &mut Object) -> bool {
+fn handle_player_actions(tcod: &mut Tcod, maze: &Maze, player: &mut Entity) -> bool {
     use tcod::input::Key;
     use tcod::input::KeyCode::*;
 
@@ -99,7 +99,8 @@ fn main() {
     let mut tcod = Tcod { root, offscreen };    
 
     // init a player
-    let player = Object::new(0, 0, '@', WHITE);    
+    let mut player = Entity::new(0, 0, '@', WHITE, "go4ko", true);  
+    player.alive = true;  
     
     // current entities
     let mut entities = vec![player];

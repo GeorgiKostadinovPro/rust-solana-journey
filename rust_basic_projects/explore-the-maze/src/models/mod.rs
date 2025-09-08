@@ -1,3 +1,3 @@
 pub mod maze;
-pub mod object;
+pub mod entity;
 pub mod tcod_db;
