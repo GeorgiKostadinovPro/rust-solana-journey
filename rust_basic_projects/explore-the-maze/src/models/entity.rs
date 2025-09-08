@@ -3,6 +3,14 @@ use tcod::console::{Console, BackgroundFlag};
 
 use crate::models::maze::Maze;
 
+// deriving PartialEq lets us use == and != to compare the enums together
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum PlayerAction {
+    TookTurn,
+    DidntTakeTurn,
+    Exit
+}
+
 /// This is a generic object: the player, a monster, an item, the stairs...
 /// It's always represented by a character on screen.
 #[derive(Debug)]
@@ -13,13 +21,13 @@ pub struct Entity {
     color: Color,
     pub name: String,  
     pub is_blocking: bool,  
-    pub alive: bool,  
+    pub is_alive: bool,  
 }
 
 impl Entity {
     // constructor
     pub fn new(x: i32, y: i32, char: char, color: Color, name: &str, is_blocking: bool) -> Self {
-        Entity { x, y, char, color, name: name.to_string(), is_blocking, alive: false }
+        Entity { x, y, char, color, name: name.to_string(), is_blocking, is_alive: false }
     }
 
     // getter

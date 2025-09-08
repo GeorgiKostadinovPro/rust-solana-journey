@@ -159,7 +159,7 @@ fn create_monsters(room: Room, entities: &mut Vec<Entity>) {
             Entity::new(x, y, 'T', DARKER_GREEN, "troll", true)
         };
 
-        monster.alive = true;
+        monster.is_alive = true;
         entities.push(monster);
     }
 }

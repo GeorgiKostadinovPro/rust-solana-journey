@@ -6,8 +6,10 @@ mod models;
 
 // import modules from crate
 use crate::models::maze::*;
+use crate::models::entity::*;
 use crate::models::tcod_db::*;
-use crate::models::entity::Entity;
+
+use crate::models::entity::PlayerAction::{TookTurn, DidntTakeTurn, Exit};
 
 /// @title render_maze
 /// @author GeorgiKostadinovPro
@@ -45,37 +47,87 @@ pub fn render_maze(tcod: &mut Tcod, game: &Game, entities: &[Entity]) {
 /// @author GeorgiKostadinovPro
 /// @notice keyboard handling fn
 /// @dev custom fn to handle keyboard interaction
-fn handle_player_actions(tcod: &mut Tcod, maze: &Maze, entities: &mut [Entity]) -> bool {
+fn handle_player_actions(tcod: &mut Tcod, maze: &Maze, entities: &mut [Entity]) -> PlayerAction {
     use tcod::input::Key;
     use tcod::input::KeyCode::*;
 
     let key: Key = tcod.root.wait_for_keypress(true);
+
+    // if player is dead do not allow to move
+    let is_alive = entities[PLAYER].is_alive;
     
     // actions supported:
     // enter + alt - full screen
     // escape => close game
-    // up, down, left, rright => move player
-    match key {
+    // up, down, left, right => move player
+    // toggle screen and exit - work whether player is alive/dead
+    // for movement - is_alive must be true
+    match (key, key.text(), is_alive) {
         // get only the action without any other fields (..)
         // without .. code will not compile because we have to specify each field
-        Key {
+        (Key {
                 code: Enter,
                 alt: true,
                 ..
-            } => {
+            },
+            _,
+            _
+        ) => {
             // Alt+Enter: toggle fullscreen
             let fullscreen = tcod.root.is_fullscreen();
             tcod.root.set_fullscreen(!fullscreen);
+            // this does not count as player action
+            DidntTakeTurn
         }
-        Key { code: Escape, .. } => return true,
-        Key { code: Up, .. } => Entity::move_by(maze, entities, PLAYER, 0, -1),
-        Key { code: Down, .. } => Entity::move_by(maze, entities, PLAYER, 0, 1),
-        Key { code: Left, .. } => Entity::move_by(maze, entities, PLAYER, -1, 0),
-        Key { code: Right, .. } => Entity::move_by(maze, entities, PLAYER, 1, 0),
-        _ => {}
+        (
+            Key { 
+                code: Escape, .. 
+            }, 
+            _, 
+            _
+        ) => Exit,
+        (Key 
+            { 
+                code: Up, .. 
+            },
+            _,
+            true
+        ) => {
+            Entity::move_by(maze, entities, PLAYER, 0, -1); 
+            TookTurn
+        },
+        (Key 
+            { 
+                code: Down, .. 
+            },
+            _,
+            true
+        ) => {
+            Entity::move_by(maze, entities, PLAYER, 0, 1);
+            TookTurn
+        },
+        (Key 
+            { 
+                code: Left, .. 
+            },
+            _,
+            true
+        ) => {
+            Entity::move_by(maze, entities, PLAYER, -1, 0);
+            TookTurn
+        },
+        (Key 
+            { 
+                code: Right, .. 
+            },
+            _,
+            true
+        ) => {
+            Entity::move_by(maze, entities, PLAYER, 1, 0);
+            TookTurn
+        },
+        _ => DidntTakeTurn
     }
-
-    false
 }
 
 fn main() { 
@@ -100,14 +152,14 @@ fn main() {
 
     // init a player
     let mut player = Entity::new(0, 0, '@', WHITE, "go4ko", true);  
-    player.alive = true;  
+    player.is_alive = true;  
     
     // current entities
     let mut entities = vec![player];
 
     // init game and create a maze ref maze.rs for more docs
     // player will be placed in the center of the first generated room
-    // monters will be placxed within each generated room on random
+    // monters will be placed within each generated room on random
     let game = Game { maze: create_maze(&mut entities) }; 
 
     // start the game loop until the window is closed
@@ -129,8 +181,8 @@ fn main() {
         // handle actions and exit game if needed
         // entities are vec but fn accepts &mut [Entity] 
         // deref coercion - create a mutable slice - mutate elements inside, but resize vec
-        let exit = handle_player_actions(&mut tcod, &game.maze, &mut entities);
-        if exit {
+        let player_action = handle_player_actions(&mut tcod, &game.maze, &mut entities);
+        if player_action == PlayerAction::Exit {
             break;
         }
     }
