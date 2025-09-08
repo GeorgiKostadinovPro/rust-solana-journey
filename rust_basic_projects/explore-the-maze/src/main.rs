@@ -16,7 +16,7 @@ use crate::models::entity::PlayerAction::{TookTurn, DidntTakeTurn, Exit};
 /// @author GeorgiKostadinovPro
 /// @notice render the whole maze with its elements and entities
 /// @dev custom fn to render a custom jagged maze with its elements and entities
-pub fn render_maze(tcod: &mut Tcod, game: &Game, entities: &[Entity], fov_recompute: bool) {
+pub fn render_maze(tcod: &mut Tcod, game: &mut Game, entities: &[Entity], fov_recompute: bool) {
     if fov_recompute {
         // recompute FOV if needed (the player has moved)
         // move fov with the player
@@ -37,6 +37,9 @@ pub fn render_maze(tcod: &mut Tcod, game: &Game, entities: &[Entity], fov_recomp
             // if view is blocked then this is a wall
             let is_wall = game.maze[x as usize][y as usize].block_sight;
 
+            // if explored only then color the tile, all other tiles are not visible
+            let is_explored = &mut game.maze[x as usize][y as usize].is_explored;
+
             // if wall or ground is visible then lighten them
             // otherwise is not visible set dark colors
             let color = match (is_visible, is_wall) {
@@ -48,8 +51,18 @@ pub fn render_maze(tcod: &mut Tcod, game: &Game, entities: &[Entity], fov_recomp
                 (true, false) => COLOR_LIGHT_GROUND
             };
 
-            tcod.offscreen
-                .set_char_background(x, y, color, BackgroundFlag::Set);
+            if is_visible {
+                // visible tiles are explored tiles
+                *is_explored = true;
+            }
+
+            // only show explored tiles (any visible tile is explored already)
+            // if tile is not explored or yet to be explored then do not color it
+            // tiles are black until explored
+            if *is_explored {
+                tcod.offscreen
+                    .set_char_background(x, y, color, BackgroundFlag::Set);
+            }
         }
     }   
 
@@ -187,7 +200,7 @@ fn main() {
     // init game and create a maze ref maze.rs for more docs
     // player will be placed in the center of the first generated room
     // monters will be placed within each generated room on random
-    let game = Game { maze: create_maze(&mut entities) }; 
+    let mut game = Game { maze: create_maze(&mut entities) }; 
 
     // populate the FOV map, according to the generated maze
     // the libtcod FOV module needs to know which tiles block sight
@@ -224,7 +237,7 @@ fn main() {
         // (0, 0) != (x, y) => player has moved => move the fov with him
         let fov_recompute = player_previous_position != (entities[0].x, entities[0].y);
 
-        render_maze(&mut tcod, &game, &entities, fov_recompute);
+        render_maze(&mut tcod, &mut game, &entities, fov_recompute);
 
         // flush to root so the window shows the frame
         tcod.root.flush();

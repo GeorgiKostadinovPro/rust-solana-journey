@@ -40,22 +40,28 @@ pub struct Game {
 // Debug - print tile content
 #[derive(Clone, Copy, Debug)]
 pub struct Tile {
+    // wall
     pub blocked: bool,
-    pub block_sight: bool
+    // wall + fov is blocked
+    pub block_sight: bool,
+    // fog of war tracker
+    pub is_explored: bool
 }
 
 impl Tile {
     pub fn empty() -> Self {
         Tile {
             blocked: false,
-            block_sight: false
+            block_sight: false,
+            is_explored: false
         }
     }
 
     pub fn wall() -> Self {
         Tile {
             blocked: true,
-            block_sight: true
+            block_sight: true,
+            is_explored: false
         }
     }
 }
