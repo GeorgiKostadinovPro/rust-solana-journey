@@ -11,8 +11,8 @@ use crate::models::object::Object;
 
 /// @title render_maze
 /// @author GeorgiKostadinovPro
-/// @notice render the whole mmap with its elements
-/// @dev custom fn to render a custom jagged maze with its elements
+/// @notice render the whole maze with its elements and entities
+/// @dev custom fn to render a custom jagged maze with its elements and entities
 pub fn render_maze(tcod: &mut Tcod, game: &Game, objects: &[Object]) {
     for object in objects {
         object.draw(&mut tcod.offscreen);
@@ -99,14 +99,15 @@ fn main() {
     let mut tcod = Tcod { root, offscreen };    
 
     // init a player
-    let player = Object::new(25, 23, '@', WHITE);    
+    let player = Object::new(0, 0, '@', WHITE);    
     
     // current entities
-    let mut entities = [player];
+    let mut entities = vec![player];
 
     // init game and create a maze ref maze.rs for more docs
     // player will be placed in the center of the first generated room
-    let game = Game { maze: create_maze(&mut entities[0]) }; 
+    // monters will be placxed within each generated room on random
+    let game = Game { maze: create_maze(&mut entities) }; 
 
     // start the game loop until the window is closed
     // the loop will be executed 20 times a second (limit fps = 20)

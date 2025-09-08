@@ -96,7 +96,7 @@ impl Room {
 /// @author GeorgiKostadinovPro
 /// @notice create a custom room in maze
 /// @dev custom fn to create an empty custom room within maze ((x, y), (x + dx, y + dy))
-fn create_room(room: Room, maze: &mut Maze) {
+fn create_room(maze: &mut Maze, room: Room) {
     // go through the tiles in the room and make them passable
     // from x + 1 and y1 + 1 so that only inside the room is empty, not the walls
     // A..B means A is inclused up to B (exclusive)
@@ -135,7 +135,7 @@ fn create_tunnel(maze: &mut Maze, x1: i32, x2: i32, y1: i32, y2: i32, is_horizon
 /// @author GeorgiKostadinovPro
 /// @notice create monsters in maze on random
 /// @dev custom fn to create monsters within maze on random
-fn create_monsters(room: Room, objects: &mut Vec<Object>) {
+fn create_monsters(room: Room, entities: &mut Vec<Object>) {
     // choose random number of monsters
     let monsters_count = rand::thread_rng().gen_range(0, MAX_MONSTERS_IN_ROOM + 1);
 
@@ -155,7 +155,7 @@ fn create_monsters(room: Room, objects: &mut Vec<Object>) {
             Object::new(x, y, 'T', DARKER_GREEN)
         };
 
-        objects.push(monster);
+        entities.push(monster);
     }
 }
 
@@ -163,7 +163,7 @@ fn create_monsters(room: Room, objects: &mut Vec<Object>) {
 /// @author GeorgiKostadinovPro
 /// @notice create a custom jagged maze
 /// @dev custom fn to create a custom jagged maze (80 inner vectors with 45 Tiles each)
-pub fn create_maze(player: &mut Object) -> Maze {
+pub fn create_maze(entities: &mut Vec<Object>) -> Maze {
     // fill map with "unblocked" tiles
     let mut maze = vec![vec![Tile::wall(); MAZE_HEIGHT as usize]; MAZE_WIDTH as usize];
 
@@ -194,7 +194,10 @@ pub fn create_maze(player: &mut Object) -> Maze {
         }
 
         // insert the room in the maze with empty tiles
-        create_room(room, &mut maze);
+        create_room(&mut maze, room);
+
+        // create monsters
+        create_monsters(room, entities);
 
         // get the center of the room to place the player
         let (center_x, center_y) = room.center();
@@ -203,8 +206,8 @@ pub fn create_maze(player: &mut Object) -> Maze {
         // for every other room try to connect it via a tunnel to the previous one
         if rooms.is_empty() {
             // this is the first room, where the player starts at
-            player.x = center_x;
-            player.y = center_y;
+            entities[0].x = center_x;
+            entities[0].y = center_y;
         } else {
             // all rooms after the first:
             // connect it to the previous room with a tunnel
