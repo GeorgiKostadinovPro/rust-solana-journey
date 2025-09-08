@@ -1,5 +1,6 @@
 use tcod::colors::*;
 use tcod::console::*;
+use tcod::map::{FovAlgorithm, Map};
 
 // register modules in the crate
 mod models;
@@ -147,8 +148,11 @@ fn main() {
     // maze is smaller than root console, the empty space will be used for healthy bar, messages, etc
     let offscreen = Offscreen::new(MAZE_WIDTH, MAZE_HEIGHT);
 
+    // init a field of view map (tcod_db.rs for more docs)
+    let fov = Map::new(MAZE_WIDTH, MAZE_HEIGHT);
+
     // init the root options
-    let mut tcod = Tcod { root, offscreen };    
+    let mut tcod = Tcod { root, offscreen, fov };    
 
     // init a player
     let mut player = Entity::new(0, 0, '@', WHITE, "go4ko", true);  

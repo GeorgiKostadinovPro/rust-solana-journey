@@ -7,9 +7,12 @@ use crate::models::entity::Entity;
 pub const MAZE_WIDTH: i32 = 80;
 pub const MAZE_HEIGHT: i32 = 45;
 
-// colors of the tiles wall and ground
+// colors of the tiles - wall and ground
 pub const COLOR_DARK_WALL: Color = Color { r: 0, g: 0, b: 100 };
+const COLOR_LIGHT_WALL: Color = Color { r: 130, g: 110, b: 50 };
+
 pub const COLOR_DARK_GROUND: Color = Color {r: 50, g: 50, b: 150 };
+const COLOR_LIGHT_GROUND: Color = Color { r: 200, g: 180, b: 50 };
 
 // max num of room + max/min size of rooms
 const MAX_ROOMS: i32 = 30;
