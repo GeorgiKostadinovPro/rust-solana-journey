@@ -19,6 +19,17 @@ impl Object {
         Object { x, y, char, color }
     }
 
+    // getter
+    pub fn get_pos(&self) -> (i32, i32) {
+        (self.x, self.y)
+    }
+
+    // setter
+    pub fn set_pos(&mut self, x: i32, y: i32) {
+        self.x = x;
+        self.y = y;
+    }
+
     // move by the given amount
     // if wall return
     pub fn move_by(&mut self, maze: &Maze, dx: i32, dy: i32) {

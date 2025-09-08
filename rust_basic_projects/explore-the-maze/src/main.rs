@@ -126,7 +126,7 @@ fn main() {
         tcod.root.flush();
 
         // handle actions and exit game if needed
-        let exit = handle_player_actions(&mut tcod, &game.maze, &mut entities[0]);
+        let exit = handle_player_actions(&mut tcod, &game.maze, &mut entities[PLAYER]);
         if exit {
             break;
         }

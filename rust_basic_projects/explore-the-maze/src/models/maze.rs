@@ -19,6 +19,10 @@ pub const ROOM_MAX_SIZE: i32 = 10;
 // max num of monsters in each room
 const MAX_MONSTERS_IN_ROOM: i32 = 3;
 
+// player index in entities vector
+// player will always be the first object
+pub const PLAYER: usize = 0;
+
 // custom type Maze - two dimentional array / jagged array
 pub type Maze = Vec<Vec<Tile>>;
 
@@ -148,7 +152,7 @@ fn create_monsters(room: Room, entities: &mut Vec<Object>) {
 
         // 80% chance of getting an orc
         // 20% - trolls
-        let mut monster = if rand::random::<f32>() < 0.8 {  
+        let monster = if rand::random::<f32>() < 0.8 {  
             // create an orc
             Object::new(x, y, 'o', DESATURATED_GREEN)
         } else {
@@ -206,24 +210,23 @@ pub fn create_maze(entities: &mut Vec<Object>) -> Maze {
         // for every other room try to connect it via a tunnel to the previous one
         if rooms.is_empty() {
             // this is the first room, where the player starts at
-            entities[0].x = center_x;
-            entities[0].y = center_y;
+            entities[PLAYER].set_pos(center_x, center_y);
         } else {
             // all rooms after the first:
             // connect it to the previous room with a tunnel
 
             // center coordinates of the previous room (the curr last room)
-            let (prev_x, prev_y) = rooms[rooms.len() - 1].center();
+            let (prev_center_x, prev_center_y) = rooms[rooms.len() - 1].center();
 
             // toss a coin (random bool value -- either true or false)
             if rand::random() {
                 // first move horizontally, then vertically
-                create_tunnel(&mut maze, prev_x, center_x, prev_y, 0, true);
-                create_tunnel(&mut maze, center_x, 0, prev_y, center_y, false);
+                create_tunnel(&mut maze, prev_center_x, center_x, prev_center_y, 0, true);
+                create_tunnel(&mut maze, center_x, 0, prev_center_y, center_y, false);
             } else {
                 // first move vertically, then horizontally
-                create_tunnel(&mut maze, prev_x, 0, prev_y, center_y, false);
-                create_tunnel(&mut maze, prev_x, center_x, center_y, 0, true);
+                create_tunnel(&mut maze, prev_center_x, 0, prev_center_y, center_y, false);
+                create_tunnel(&mut maze, prev_center_x, center_x, center_y, 0, true);
             }
         }
 
