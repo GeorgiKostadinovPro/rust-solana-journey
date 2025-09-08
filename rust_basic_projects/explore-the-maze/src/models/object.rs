@@ -24,9 +24,9 @@ impl Object {
     pub fn move_by(&mut self, maze: &Maze, dx: i32, dy: i32) {
         // add the new deltas to the current player x, y 
         // check that his next position is not a wall
-        let isWall = maze[(self.x + dx) as usize][(self.y + dy) as usize].blocked;
+        let is_wall = maze[(self.x + dx) as usize][(self.y + dy) as usize].blocked;
 
-        if isWall {
+        if is_wall {
             return;
         }
 

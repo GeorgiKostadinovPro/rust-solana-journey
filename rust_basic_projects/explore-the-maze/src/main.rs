@@ -24,10 +24,10 @@ pub fn render_maze(tcod: &mut Tcod, game: &Game, objects: &[Object]) {
         // visit each element in vector
         for j in 0..MAZE_HEIGHT {
             // if view is blocked then this is a wall
-            let isWall = game.maze[i as usize][j as usize].block_sight;
+            let is_wall = game.maze[i as usize][j as usize].block_sight;
 
             // if wall drew it otherwise it is a ground tile
-            if isWall {
+            if is_wall {
                 tcod.offscreen.set_char_background(i, j, COLOR_DARK_WALL, BackgroundFlag::Set);
             } else {
                 tcod.offscreen.set_char_background(i, j, COLOR_DARK_GROUND, BackgroundFlag::Set);

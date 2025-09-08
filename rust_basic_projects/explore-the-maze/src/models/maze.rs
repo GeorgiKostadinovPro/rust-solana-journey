@@ -1,6 +1,6 @@
 use std::cmp;
 use rand::Rng;
-use tcod::colors::Color;
+use tcod::colors::*;
 use crate::models::object::Object;
 
 // size of the maze
@@ -15,6 +15,9 @@ pub const COLOR_DARK_GROUND: Color = Color {r: 50, g: 50, b: 150 };
 const MAX_ROOMS: i32 = 30;
 pub const ROOM_MIN_SIZE: i32 = 5;
 pub const ROOM_MAX_SIZE: i32 = 10;
+
+// max num of monsters in each room
+const MAX_MONSTERS_IN_ROOM: i32 = 3;
 
 // custom type Maze - two dimentional array / jagged array
 pub type Maze = Vec<Vec<Tile>>;
@@ -108,7 +111,7 @@ fn create_room(room: Room, maze: &mut Maze) {
 /// @author GeorgiKostadinovPro
 /// @notice create a custom tunnel in maze
 /// @dev custom fn to create an empty custom tunnel within maze
-fn create_tunnel(maze: &mut Maze, x1: i32, x2: i32, y1: i32, y2: i32, isHorizontal: bool) {
+fn create_tunnel(maze: &mut Maze, x1: i32, x2: i32, y1: i32, y2: i32, is_horizontal: bool) {
     // the tunner can be horizontal or vertical - isHorizontal
     // isHorizontal - loop in maze only on rows, not cols
     // in rust jagged array x - cols, y - rows. In C# x - rows, y - cols
@@ -117,7 +120,7 @@ fn create_tunnel(maze: &mut Maze, x1: i32, x2: i32, y1: i32, y2: i32, isHorizont
     // y1 and y2 are the start and end, x1 is the width, x2 = 0 not needed
     // min & max ensure that we always start with the smaller number (1, 5) is the same as (5, 1)
     // otherwise the for loop will not produce result
-    if isHorizontal {
+    if is_horizontal {
         for x in cmp::min(x1, x2)..cmp::max(x1, x2) {
             maze[x as usize][y1 as usize] = Tile::empty();
         }
@@ -125,6 +128,34 @@ fn create_tunnel(maze: &mut Maze, x1: i32, x2: i32, y1: i32, y2: i32, isHorizont
         for y in cmp::min(y1, y2)..cmp::max(y1, y2) {
             maze[x1 as usize][y as usize] = Tile::empty();
         }
+    }
+}
+
+/// @title create_monsters
+/// @author GeorgiKostadinovPro
+/// @notice create monsters in maze on random
+/// @dev custom fn to create monsters within maze on random
+fn create_monsters(room: Room, objects: &mut Vec<Object>) {
+    // choose random number of monsters
+    let monsters_count = rand::thread_rng().gen_range(0, MAX_MONSTERS_IN_ROOM + 1);
+
+    for _ in 0..monsters_count {
+        // choose random spot for curr monster
+        // (x1 + 1, y1 + 1) => x2, y2 (exclusive)
+        // monster is placed only within room
+        let x = rand::thread_rng().gen_range(room.x1 + 1, room.x2);
+        let y = rand::thread_rng().gen_range(room.y1 + 1, room.y2);
+
+        // 80% chance of getting an orc
+        // 20% - trolls
+        let mut monster = if rand::random::<f32>() < 0.8 {  
+            // create an orc
+            Object::new(x, y, 'o', DESATURATED_GREEN)
+        } else {
+            Object::new(x, y, 'T', DARKER_GREEN)
+        };
+
+        objects.push(monster);
     }
 }
 
