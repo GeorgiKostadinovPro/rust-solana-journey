@@ -33,19 +33,32 @@ impl Entity {
         self.y = y;
     }
 
-    // move by the given amount
-    // if wall return
-    pub fn move_by(&mut self, maze: &Maze, dx: i32, dy: i32) {
-        // add the new deltas to the current player x, y 
-        // check that his next position is not a wall
-        let is_wall = maze[(self.x + dx) as usize][(self.y + dy) as usize].blocked;
-
-        if is_wall {
-            return;
+    fn is_blocked(x: i32, y: i32, maze: &Maze, entities: &mut [Entity]) -> bool {
+        // cvheck if tile is wall
+        if maze[x as usize][y as usize].blocked {
+            return true;
         }
 
-        self.x += dx;
-        self.y += dy;
+        // check for any blocking entities - orcs, trolls, etc
+        entities
+            .iter()
+            .any(|entity| entity.is_blocking && entity.get_pos() == (x, y))
+    }
+
+    // move by the given amount
+    // if wall return
+    // self cannot be used because player is &mut, but entities is &, player is in the entitites
+    // To guarantee memory safety and no data races, Rust’s references (& and &mut) have a few rules
+    // One of them is that when you have a mutable borrow (player), you can’t have any other mutable or immutable borrows into the same data
+    // solution: remove self and make entities &mut - read player from entities
+    pub fn move_by(maze: &Maze, entities: &mut [Entity], idx: usize, dx: i32, dy: i32) {
+        // add the new deltas to the current player x, y 
+        // check that his next position is not a wall
+        let (x, y) = entities[idx].get_pos();
+
+        if !Entity::is_blocked(x + dx, y + dy, maze, entities) {
+            entities[idx].set_pos(x + dx, y + dy);
+        }
     }
 
     // set the color and then draw the character that represents this object at its position

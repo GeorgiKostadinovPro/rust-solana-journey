@@ -45,7 +45,7 @@ pub fn render_maze(tcod: &mut Tcod, game: &Game, entities: &[Entity]) {
 /// @author GeorgiKostadinovPro
 /// @notice keyboard handling fn
 /// @dev custom fn to handle keyboard interaction
-fn handle_player_actions(tcod: &mut Tcod, maze: &Maze, player: &mut Entity) -> bool {
+fn handle_player_actions(tcod: &mut Tcod, maze: &Maze, entities: &mut [Entity]) -> bool {
     use tcod::input::Key;
     use tcod::input::KeyCode::*;
 
@@ -68,10 +68,10 @@ fn handle_player_actions(tcod: &mut Tcod, maze: &Maze, player: &mut Entity) -> b
             tcod.root.set_fullscreen(!fullscreen);
         }
         Key { code: Escape, .. } => return true,
-        Key { code: Up, .. } => player.move_by(maze, 0, -1),
-        Key { code: Down, .. } => player.move_by(maze, 0, 1),
-        Key { code: Left, .. } => player.move_by(maze, -1, 0),
-        Key { code: Right, .. } => player.move_by(maze, 1, 0),
+        Key { code: Up, .. } => Entity::move_by(maze, entities, PLAYER, 0, -1),
+        Key { code: Down, .. } => Entity::move_by(maze, entities, PLAYER, 0, 1),
+        Key { code: Left, .. } => Entity::move_by(maze, entities, PLAYER, -1, 0),
+        Key { code: Right, .. } => Entity::move_by(maze, entities, PLAYER, 1, 0),
         _ => {}
     }
 
@@ -127,7 +127,9 @@ fn main() {
         tcod.root.flush();
 
         // handle actions and exit game if needed
-        let exit = handle_player_actions(&mut tcod, &game.maze, &mut entities[PLAYER]);
+        // entities are vec but fn accepts &mut [Entity] 
+        // deref coercion - create a mutable slice - mutate elements inside, but resize vec
+        let exit = handle_player_actions(&mut tcod, &game.maze, &mut entities);
         if exit {
             break;
         }
