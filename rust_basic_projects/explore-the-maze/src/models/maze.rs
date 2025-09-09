@@ -1,7 +1,7 @@
 use std::cmp;
 use rand::Rng;
 use tcod::colors::*;
-use crate::models::entity::Entity;
+use crate::models::entity::{Entity, Fighter};
 
 // size of the maze
 pub const MAZE_WIDTH: i32 = 80;
@@ -163,9 +163,23 @@ fn create_monsters(room: Room, entities: &mut Vec<Entity>) {
         // 20% - trolls
         let mut monster = if rand::random::<f32>() < 0.8 {  
             // create an orc
-            Entity::new(x, y, 'o', DESATURATED_GREEN, "orc", true)
+            let mut orc = Entity::new(x, y, 'o', DESATURATED_GREEN, "orc", true);
+            orc.fighter = Some(Fighter {
+                max_hp: 10,
+                hp: 10,
+                defense: 0,
+                power: 5,
+            });
+            orc
         } else {
-            Entity::new(x, y, 'T', DARKER_GREEN, "troll", true)
+            let mut troll = Entity::new(x, y, 'T', DARKER_GREEN, "troll", true);
+            troll.fighter = Some(Fighter {
+                max_hp: 15,
+                hp: 15,
+                defense: 0,
+                power: 10,
+            });
+            troll
         };
 
         monster.is_alive = true;

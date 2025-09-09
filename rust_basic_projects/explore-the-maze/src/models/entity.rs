@@ -2,6 +2,7 @@ use tcod::colors::Color;
 use tcod::console::{Console, BackgroundFlag};
 
 use crate::models::maze::Maze;
+use crate::models::util::*;
 
 // deriving PartialEq lets us use == and != to compare the enums together
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -61,16 +62,35 @@ impl Entity {
         self.y = y;
     }
 
-    fn is_blocked(x: i32, y: i32, maze: &Maze, entities: &mut [Entity]) -> bool {
-        // cvheck if tile is wall
-        if maze[x as usize][y as usize].blocked {
-            return true;
+    // player takes damage from monster
+    // monster takes damane from player
+    fn take_damage(&mut self, damage: i32) {
+        // apply damage if possible
+        if let Some(fighter) = self.fighter.as_mut() {
+            if damage > 0 {
+                fighter.hp -= damage;
+            }
         }
+    }
 
-        // check for any blocking entities - orcs, trolls, etc
-        entities
-            .iter()
-            .any(|entity| entity.is_blocking && entity.get_pos() == (x, y))
+    // plater attacks monter
+    // monster attacks player
+    fn attack(&mut self, target: &mut Entity) {
+        // a simple formula for attack damage
+        let damage = self.fighter.map_or(0, |f| f.power) - target.fighter.map_or(0, |f| f.defense);
+        if damage > 0 {
+            // make the target take some damage
+            println!(
+                "{} attacks {} for {} hit points.",
+                self.name, target.name, damage
+            );
+            target.take_damage(damage);
+        } else {
+            println!(
+                "{} attacks {} but it has no effect!",
+                self.name, target.name
+            );
+        }
     }
 
     // move by the given amount
@@ -84,9 +104,38 @@ impl Entity {
         // check that his next position is not a wall
         let (x, y) = entities[idx].get_pos();
 
-        if !Entity::is_blocked(x + dx, y + dy, maze, entities) {
-            entities[idx].set_pos(x + dx, y + dy);
+        // check if tile is wall
+        if maze[(x + dx) as usize][(y + dy) as usize].blocked {
+            return;
         }
+
+        // get the entity on (x + dx, y + dy) and if any, attack it => take damage
+        let maybe_target = entities
+            .iter_mut()
+            .enumerate()
+            .find(|(i, e)| {
+                *i != idx && e.get_pos() == (x + dx, y + dy) && e.fighter.is_some()
+            });
+
+        // Use target_idx not the target object because 
+        // if you try to use target_entity and also access entities[idx] (the player) at the same time, 
+        // Rust complains (two mutable borrows of the same slice)
+        // Fix: split_at_mut works by splitting one slice into two non-overlapping slices, 
+        // tricking Rust (safely) into treating them like different arrays
+        if let Some((target_idx, _)) = maybe_target {
+            // player attacks monster
+            let (player, monster) = mut_two(entities, idx, target_idx);
+            player.attack(monster);
+
+            // monster retaliates
+            if monster.is_alive {
+                monster.attack(player);
+            }
+
+            return;
+        }
+        
+        entities[idx].set_pos(x + dx, y + dy);
     }
 
     // set the color and then draw the character that represents this object at its position
