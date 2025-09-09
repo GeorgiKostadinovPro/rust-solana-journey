@@ -7,6 +7,11 @@ pub const SCREEN_WIDTH: i32 = 80;
 pub const SCREEN_HEIGHT: i32 = 50;
 pub const LIMIT_FPS: i32 = 20;
 
+// sizes and coordinates relevant for the GUI
+pub const BAR_WIDTH: i32 = 20;
+pub const PANEL_HEIGHT: i32 = 7;
+pub const PANEL_Y: i32 = SCREEN_HEIGHT - PANEL_HEIGHT;
+
 // Filed of View (default FOV algorithm)
 pub const FOV_ALGO: FovAlgorithm = FovAlgorithm::Basic;
 // light walls or not
@@ -17,5 +22,6 @@ pub const TORCH_RADIUS: i32 = 10;
 pub struct Tcod {
     pub root: Root,
     pub offscreen: Offscreen,
+    pub gui_panel: Offscreen,
     pub fov: Map
 }

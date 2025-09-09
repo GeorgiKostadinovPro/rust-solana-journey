@@ -5,7 +5,7 @@ use crate::models::entity::Entity;
 
 // size of the maze
 pub const MAZE_WIDTH: i32 = 80;
-pub const MAZE_HEIGHT: i32 = 45;
+pub const MAZE_HEIGHT: i32 = 43;
 
 // colors of the tiles - wall and ground
 pub const COLOR_DARK_WALL: Color = Color { r: 0, g: 0, b: 100 };

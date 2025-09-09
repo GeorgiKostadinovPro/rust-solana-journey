@@ -12,11 +12,52 @@ use crate::models::tcod_db::*;
 
 use crate::models::entity::PlayerAction::{TookTurn, DidntTakeTurn, Exit};
 
-/// @title render_maze
+/// @title render_bar
+/// @author GeorgiKostadinovPro
+/// @notice render the bar in GUI panel (HP, EXP, etc)
+/// @dev custom fn to render a bar in the GUI panel under the maze to display HP, EXP, etc
+fn render_bar(
+    panel: &mut Offscreen,
+    x: i32,
+    y: i32,
+    total_width: i32,
+    name: &str,
+    value: i32,
+    maximum: i32,
+    bar_color: Color,
+    back_color: Color
+) {
+    // render a bar (HP, experience, etc). First calculate the width of the bar
+    let bar_width = (value as f32 / maximum as f32 * total_width as f32) as i32;
+
+    // render the background bar
+    panel.set_default_background(back_color);
+    panel.rect(x, y, total_width, 1, false, BackgroundFlag::Screen);
+
+    // now render the bar on top
+    // bar can change e.g. HP decreases due to monster attack
+    panel.set_default_background(bar_color);
+    if bar_width > 0 {
+        panel.rect(x, y, bar_width, 1, false, BackgroundFlag::Screen);
+    }
+
+    // value and max will be shown above the bar for extra clarity
+    // a caption will also be presented to indicate if the bar is HP, EXP, etc
+    panel.set_default_foreground(WHITE);
+    panel.print_ex(
+        x + total_width / 2,
+        y,
+        BackgroundFlag::None,
+        TextAlignment::Center,
+        &format!("{}: {}/{}", name, value, maximum),
+    );
+}
+
+/// @titgame
 /// @author GeorgiKostadinovPro
 /// @notice render the whole maze with its elements and entities
 /// @dev custom fn to render a custom jagged maze with its elements and entities
-pub fn render_maze(tcod: &mut Tcod, game: &mut Game, entities: &[Entity], fov_recompute: bool) {
+pub fn render_game(tcod: &mut Tcod, game: &mut Game, entities: &[Entity], fov_recompute: bool) {
     if fov_recompute {
         // recompute FOV if needed (the player has moved)
         // move fov with the player
@@ -78,6 +119,39 @@ pub fn render_maze(tcod: &mut Tcod, game: &mut Game, entities: &[Entity], fov_re
     // blit(from, start coo, width and height of area to blit, to, start blit from coo, transparency)
     // From now on, the offscreen console Entity will represent only the map
     blit(&tcod.offscreen, (0, 0), (MAZE_WIDTH, MAZE_HEIGHT), &mut tcod.root, (0, 0), 1.0, 1.0);
+
+
+    // re-initialize the gui panel to black, call render_bar to display the player’s HP, 
+    // then show the panel on the root console
+    // prepare to render the GUI panel
+    tcod.gui_panel.set_default_background(BLACK);
+    tcod.gui_panel.clear();
+
+    // show the player's stats
+    let hp = entities[PLAYER].fighter.map_or(0, |f| f.hp);
+    let max_hp = entities[PLAYER].fighter.map_or(0, |f| f.max_hp);
+    render_bar(
+        &mut tcod.gui_panel,
+        1,
+        1,
+        BAR_WIDTH,
+        "HP",
+        hp,
+        max_hp,
+        LIGHT_RED,
+        DARKER_RED,
+    );
+
+    // blit the contents of `panel` to the root and present it
+    blit(
+        &tcod.gui_panel,
+        (0, 0),
+        (SCREEN_WIDTH, PANEL_HEIGHT),
+        &mut tcod.root,
+        (0, PANEL_Y),
+        1.0,
+        1.0,
+    );
 }
 
 /// @title handle_player_actions
@@ -182,17 +256,29 @@ fn main() {
 
     // use offscreen console for transparency effects and rendring part of the main root window
     // maze is smaller than root console, the empty space will be used for healthy bar, messages, etc
-    let offscreen = Offscreen::new(MAZE_WIDTH, MAZE_HEIGHT);
+    let offscreen = Offscreen::new(MAZE_WIDTH, MAZE_HEIGHT);    
+    
+    // init a gui panel under themaze to display messages, HP, items, etc
+    // Maze width == Screen width, Panel height = screen - maze
+    let gui_panel = Offscreen::new(MAZE_WIDTH, PANEL_HEIGHT);
 
     // init a field of view map (tcod_db.rs for more docs)
     let fov = Map::new(MAZE_WIDTH, MAZE_HEIGHT);
 
     // init the root options
-    let mut tcod = Tcod { root, offscreen, fov };    
+    let mut tcod = Tcod { root, offscreen, gui_panel, fov };    
 
     // init a player
     let mut player = Entity::new(0, 0, '@', WHITE, "go4ko", true);  
     player.is_alive = true;  
+    player.fighter = Some(
+        Fighter {
+            max_hp: 30,
+            hp: 30,
+            defense: 2,
+            power: 5
+        }
+    );
     
     // current entities
     let mut entities = vec![player];
@@ -237,7 +323,7 @@ fn main() {
         // (0, 0) != (x, y) => player has moved => move the fov with him
         let fov_recompute = player_previous_position != (entities[0].x, entities[0].y);
 
-        render_maze(&mut tcod, &mut game, &entities, fov_recompute);
+        render_game(&mut tcod, &mut game, &entities, fov_recompute);
 
         // flush to root so the window shows the frame
         tcod.root.flush();

@@ -11,8 +11,18 @@ pub enum PlayerAction {
     Exit
 }
 
+// combat-related properties and methods (monster, player, etc)
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct Fighter {
+    pub max_hp: i32,
+    pub hp: i32,
+    pub defense: i32,
+    pub power: i32
+}
+
 /// This is a generic object: the player, a monster, an item, the stairs...
 /// It's always represented by a character on screen.
+// Entity may not be a fighter -> Option -> init passing None
 #[derive(Debug)]
 pub struct Entity {
     pub x: i32,
@@ -22,12 +32,22 @@ pub struct Entity {
     pub name: String,  
     pub is_blocking: bool,  
     pub is_alive: bool,  
+    pub fighter: Option<Fighter>
 }
 
 impl Entity {
     // constructor
     pub fn new(x: i32, y: i32, char: char, color: Color, name: &str, is_blocking: bool) -> Self {
-        Entity { x, y, char, color, name: name.to_string(), is_blocking, is_alive: false }
+        Entity { 
+            x, 
+            y, 
+            char, 
+            color, 
+            name: name.to_string(), 
+            is_blocking, 
+            is_alive: false, 
+            fighter: None 
+        }
     }
 
     // getter
