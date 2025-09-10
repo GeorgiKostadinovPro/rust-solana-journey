@@ -1,4 +1,4 @@
-use tcod::colors::Color;
+use tcod::colors::*;
 use tcod::console::{Console, BackgroundFlag};
 
 use crate::models::maze::Maze;
@@ -12,13 +12,57 @@ pub enum PlayerAction {
     Exit
 }
 
+// a callback to call into when entity (fighter) dies
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum DeathCallback {
+    Player,
+    Monster
+}
+
+// fn to invoke the on death callback depending on the type of entity which died
+// if player => player_death, monster => monster_death
+impl DeathCallback {
+    fn player_death(player: &mut Entity) {
+        // the game ended
+        println!("You died!");
+
+        // for added effect, transform the player into a corpse!
+        player.char = '%';
+        player.color = DARK_RED;
+        player.is_alive = false;
+    }
+
+    fn monster_death(monster: &mut Entity) {
+        // transform it into a nasty corpse! it doesn't block, can't be
+        // attacked and doesn't move
+        println!("{} is dead!", monster.name);
+        monster.char = '%';
+        monster.color = DARK_RED;
+        monster.is_blocking = false;
+        monster.is_alive = false;
+        monster.fighter = None;
+        monster.name = format!("remains of {}", monster.name);
+    }
+
+    fn callback(self, entity: &mut Entity) {
+        use DeathCallback::*;
+        let callback: fn(&mut Entity) = match self {
+            Player => DeathCallback::player_death,
+            Monster => DeathCallback::monster_death
+        };
+        callback(entity);
+    }
+}
+
 // combat-related properties and methods (monster, player, etc)
+// on_death - if player died - end game, if monster - then add a corpse
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Fighter {
     pub max_hp: i32,
     pub hp: i32,
     pub defense: i32,
-    pub power: i32
+    pub power: i32,
+    pub on_death: DeathCallback
 }
 
 /// This is a generic object: the player, a monster, an item, the stairs...
@@ -66,9 +110,18 @@ impl Entity {
     // monster takes damane from player
     fn take_damage(&mut self, damage: i32) {
         // apply damage if possible
+        // only if the entity is fighter, can it take damage
+        // take as mut because we update the hp
+        // cannot update both self and fighter in this if
+        // because they are both "alive" and rust does not allow that
+        // player.is_alive will be updated in the death callback
         if let Some(fighter) = self.fighter.as_mut() {
             if damage > 0 {
                 fighter.hp -= damage;
+            }
+
+            if fighter.hp <= 0 {
+                fighter.on_death.callback(self);
             }
         }
     }
@@ -109,7 +162,7 @@ impl Entity {
             return;
         }
 
-        // get the entity on (x + dx, y + dy) and if any, attack it => take damage
+        // get the entity on (x + dx, y + dy) and if any fighter, attack it => take damage
         let maybe_target = entities
             .iter_mut()
             .enumerate()

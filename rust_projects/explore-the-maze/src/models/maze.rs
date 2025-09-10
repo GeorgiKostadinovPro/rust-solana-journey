@@ -1,7 +1,7 @@
 use std::cmp;
 use rand::Rng;
 use tcod::colors::*;
-use crate::models::entity::{Entity, Fighter};
+use crate::models::entity::*;
 
 // size of the maze
 pub const MAZE_WIDTH: i32 = 80;
@@ -169,6 +169,7 @@ fn create_monsters(room: Room, entities: &mut Vec<Entity>) {
                 hp: 10,
                 defense: 0,
                 power: 5,
+                on_death: DeathCallback::Monster
             });
             orc
         } else {
@@ -178,6 +179,7 @@ fn create_monsters(room: Room, entities: &mut Vec<Entity>) {
                 hp: 15,
                 defense: 0,
                 power: 10,
+                on_death: DeathCallback::Monster
             });
             troll
         };

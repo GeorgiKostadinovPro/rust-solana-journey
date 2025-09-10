@@ -276,7 +276,8 @@ fn main() {
             max_hp: 30,
             hp: 30,
             defense: 2,
-            power: 5
+            power: 5,
+            on_death: DeathCallback::Player
         }
     );
     
