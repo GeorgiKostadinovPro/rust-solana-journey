@@ -1,9 +1,5 @@
 # A console roguelike game in which the player explores a random generated maze with FoV, fights monsters, collects items, etc.
 
-## Gameplay video:
-
--- incoming --
-
 ## Topics learned:
 
 - Rust syntax and rules.

@@ -12,7 +12,17 @@ Resources (excluding personal research for articles, videos, security newsletter
 
 ## Projects
 
-More info about each project in its README.md. (docs, videos, etc)
+### To run the projects:
+
+- If you have Rust just clone the repo, select a project and run:
+
+```js
+cargo run --release
+```
+
+which is used to build and run the optimized release version of a project.
+
+### More info about each project in its README.md.
 
 1. [explore-the-maze](./rust_basic_projects/explore-the-maze/) - a console roguelike game in which the player explores a random generated maze with FoV, fights monsters, collects items, etc.
 2. [node-info-app](./rust_basic_projects/node-info-app/) - a console app, built on top of a rest api for reading node and wallet data from Bitcoin main chain.
