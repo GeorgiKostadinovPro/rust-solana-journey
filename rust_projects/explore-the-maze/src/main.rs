@@ -109,7 +109,14 @@ pub fn render_game(tcod: &mut Tcod, game: &mut Game, entities: &[Entity], fov_re
 
     // draw all entities in the list
     // if entity is in FOV then draw it
-    for entity in entities {
+    // if entity is dead then allow player to go over it
+    let mut to_draw: Vec<_> = entities.iter().collect();
+
+    // sort so that non-blocking objects come first
+    // a player will be drawn above the dead monster
+    to_draw.sort_by(|e1, e2| { e1.is_blocking.cmp(&e2.is_blocking) });
+
+    for entity in &to_draw {
         if tcod.fov.is_in_fov(entity.x, entity.y) {
             entity.draw(&mut tcod.offscreen);
         }
