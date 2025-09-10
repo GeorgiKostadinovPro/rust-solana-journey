@@ -1,6 +1,6 @@
 use tcod::colors::*;
 use tcod::console::*;
-use tcod::map::{FovAlgorithm, Map};
+use tcod::map::{Map};
 
 // register modules in the crate
 mod models;
@@ -174,7 +174,7 @@ pub fn render_game(tcod: &mut Tcod, game: &mut Game, entities: &[Entity], fov_re
 /// @author GeorgiKostadinovPro
 /// @notice keyboard handling fn
 /// @dev custom fn to handle keyboard interaction
-fn handle_player_actions(tcod: &mut Tcod, maze: &Maze, entities: &mut [Entity]) -> PlayerAction {
+fn handle_player_actions(tcod: &mut Tcod, game: &mut Game, entities: &mut [Entity]) -> PlayerAction {
     use tcod::input::Key;
     use tcod::input::KeyCode::*;
 
@@ -220,7 +220,7 @@ fn handle_player_actions(tcod: &mut Tcod, maze: &Maze, entities: &mut [Entity]) 
             _,
             true
         ) => {
-            Entity::move_by(maze, entities, PLAYER, 0, -1); 
+            Entity::move_by(game, entities, PLAYER, 0, -1); 
             TookTurn
         },
         (Key 
@@ -230,7 +230,7 @@ fn handle_player_actions(tcod: &mut Tcod, maze: &Maze, entities: &mut [Entity]) 
             _,
             true
         ) => {
-            Entity::move_by(maze, entities, PLAYER, 0, 1);
+            Entity::move_by(game, entities, PLAYER, 0, 1);
             TookTurn
         },
         (Key 
@@ -240,7 +240,7 @@ fn handle_player_actions(tcod: &mut Tcod, maze: &Maze, entities: &mut [Entity]) 
             _,
             true
         ) => {
-            Entity::move_by(maze, entities, PLAYER, -1, 0);
+            Entity::move_by(game, entities, PLAYER, -1, 0);
             TookTurn
         },
         (Key 
@@ -250,7 +250,7 @@ fn handle_player_actions(tcod: &mut Tcod, maze: &Maze, entities: &mut [Entity]) 
             _,
             true
         ) => {
-            Entity::move_by(maze, entities, PLAYER, 1, 0);
+            Entity::move_by(game, entities, PLAYER, 1, 0);
             TookTurn
         },
         _ => DidntTakeTurn
@@ -361,7 +361,7 @@ fn main() {
         // handle actions and exit game if needed
         // entities are vec but fn accepts &mut [Entity] 
         // deref coercion - create a mutable slice - mutate elements inside, but resize vec
-        let player_action = handle_player_actions(&mut tcod, &game.maze, &mut entities);
+        let player_action = handle_player_actions(&mut tcod, &mut game, &mut entities);
         if player_action == PlayerAction::Exit {
             break;
         }

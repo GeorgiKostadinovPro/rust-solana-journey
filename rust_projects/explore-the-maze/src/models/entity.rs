@@ -1,7 +1,7 @@
 use tcod::colors::*;
 use tcod::console::{Console, BackgroundFlag};
 
-use crate::models::maze::Maze;
+use crate::models::maze::{Game};
 use crate::models::util::*;
 
 // deriving PartialEq lets us use == and != to compare the enums together
@@ -22,9 +22,9 @@ pub enum DeathCallback {
 // fn to invoke the on death callback depending on the type of entity which died
 // if player => player_death, monster => monster_death
 impl DeathCallback {
-    fn player_death(player: &mut Entity) {
+    fn player_death(player: &mut Entity, game: &mut Game) {
         // the game ended
-        println!("You died!");
+        game.messages.add("You died!", RED);
 
         // for added effect, transform the player into a corpse!
         player.char = '%';
@@ -32,10 +32,10 @@ impl DeathCallback {
         player.is_alive = false;
     }
 
-    fn monster_death(monster: &mut Entity) {
-        // transform it into a nasty corpse! it doesn't block, can't be
-        // attacked and doesn't move
-        println!("{} is dead!", monster.name);
+    fn monster_death(monster: &mut Entity, game: &mut Game) {
+        // transform it into a corpse
+        // it doesn't block, can't be attacked and doesn't move
+        game.messages.add(format!("{} is dead!", monster.name), ORANGE);
         monster.char = '%';
         monster.color = DARK_RED;
         monster.is_blocking = false;
@@ -44,13 +44,13 @@ impl DeathCallback {
         monster.name = format!("remains of {}", monster.name);
     }
 
-    fn callback(self, entity: &mut Entity) {
+    fn callback(self, entity: &mut Entity, game: &mut Game) {
         use DeathCallback::*;
-        let callback: fn(&mut Entity) = match self {
+        let callback: fn(&mut Entity, &mut Game) = match self {
             Player => DeathCallback::player_death,
             Monster => DeathCallback::monster_death
         };
-        callback(entity);
+        callback(entity, game);
     }
 }
 
@@ -108,7 +108,7 @@ impl Entity {
 
     // player takes damage from monster
     // monster takes damane from player
-    fn take_damage(&mut self, damage: i32) {
+    fn take_damage(&mut self, damage: i32, game: &mut Game) {
         // apply damage if possible
         // only if the entity is fighter, can it take damage
         // take as mut because we update the hp
@@ -121,27 +121,34 @@ impl Entity {
             }
 
             if fighter.hp <= 0 {
-                fighter.on_death.callback(self);
+                fighter.on_death.callback(self, game);
             }
         }
     }
 
     // plater attacks monter
     // monster attacks player
-    fn attack(&mut self, target: &mut Entity) {
+    fn attack(&mut self, target: &mut Entity, game: &mut Game) {
         // a simple formula for attack damage
         let damage = self.fighter.map_or(0, |f| f.power) - target.fighter.map_or(0, |f| f.defense);
         if damage > 0 {
             // make the target take some damage
-            println!(
-                "{} attacks {} for {} hit points.",
-                self.name, target.name, damage
+            game.messages.add(
+                format!(
+                    "{} attacks {} for {} hit points.",
+                    self.name, target.name, damage
+                ),
+                WHITE
             );
-            target.take_damage(damage);
+
+            target.take_damage(damage, game);
         } else {
-            println!(
-                "{} attacks {} but it has no effect!",
-                self.name, target.name
+            game.messages.add(
+                format!(
+                    "{} attacks {} but it has no effect!",
+                    self.name, target.name
+                ),
+                WHITE
             );
         }
     }
@@ -152,13 +159,13 @@ impl Entity {
     // To guarantee memory safety and no data races, Rust’s references (& and &mut) have a few rules
     // One of them is that when you have a mutable borrow (player), you can’t have any other mutable or immutable borrows into the same data
     // solution: remove self and make entities &mut - read player from entities
-    pub fn move_by(maze: &Maze, entities: &mut [Entity], idx: usize, dx: i32, dy: i32) {
+    pub fn move_by(game: &mut Game, entities: &mut [Entity], idx: usize, dx: i32, dy: i32) {
         // add the new deltas to the current player x, y 
         // check that his next position is not a wall
         let (x, y) = entities[idx].get_pos();
 
         // check if tile is wall
-        if maze[(x + dx) as usize][(y + dy) as usize].blocked {
+        if game.maze[(x + dx) as usize][(y + dy) as usize].blocked {
             return;
         }
 
@@ -178,11 +185,11 @@ impl Entity {
         if let Some((target_idx, _)) = maybe_target {
             // player attacks monster
             let (player, monster) = mut_two(entities, idx, target_idx);
-            player.attack(monster);
+            player.attack(monster, game);
 
             // monster retaliates
             if monster.is_alive {
-                monster.attack(player);
+                monster.attack(player, game);
             }
 
             return;
