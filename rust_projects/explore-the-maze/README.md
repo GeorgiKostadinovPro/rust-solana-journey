@@ -9,6 +9,7 @@
 - Rust syntax and rules.
 - Rust fundamental concepts - ownership, borrowing, etc.
 - Rust custom data structures.
+- Rust traits, generics & adaptors.
 - Rust libtcod & rand.
 - SoC and refactoring.
 
