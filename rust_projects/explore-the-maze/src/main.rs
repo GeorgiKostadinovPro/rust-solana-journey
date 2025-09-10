@@ -120,7 +120,6 @@ pub fn render_game(tcod: &mut Tcod, game: &mut Game, entities: &[Entity], fov_re
     // From now on, the offscreen console Entity will represent only the map
     blit(&tcod.offscreen, (0, 0), (MAZE_WIDTH, MAZE_HEIGHT), &mut tcod.root, (0, 0), 1.0, 1.0);
 
-
     // re-initialize the gui panel to black, call render_bar to display the player’s HP, 
     // then show the panel on the root console
     // prepare to render the GUI panel
@@ -130,6 +129,7 @@ pub fn render_game(tcod: &mut Tcod, game: &mut Game, entities: &[Entity], fov_re
     // show the player's stats
     let hp = entities[PLAYER].fighter.map_or(0, |f| f.hp);
     let max_hp = entities[PLAYER].fighter.map_or(0, |f| f.max_hp);
+
     render_bar(
         &mut tcod.gui_panel,
         1,
@@ -141,6 +141,22 @@ pub fn render_game(tcod: &mut Tcod, game: &mut Game, entities: &[Entity], fov_re
         LIGHT_RED,
         DARKER_RED,
     );
+
+    // print the game messages, one line at a time
+    let mut y = MSG_HEIGHT as i32;
+    for &(ref msg, color) in game.messages.messages.iter().rev() {
+        let msg_height = tcod.gui_panel.get_height_rect(MSG_X, y, MSG_WIDTH, 0, msg);
+        y -= msg_height;
+
+        // y < 0 => draw above the gui panel => tcod does not allow
+        // since we run out of space stop printing messages
+        if y < 0 {
+            break;
+        }
+
+        tcod.gui_panel.set_default_foreground(color);
+        tcod.gui_panel.print_rect(MSG_X, y, MSG_WIDTH, 0, msg);
+    }
 
     // blit the contents of `panel` to the root and present it
     blit(
@@ -287,7 +303,16 @@ fn main() {
     // init game and create a maze ref maze.rs for more docs
     // player will be placed in the center of the first generated room
     // monters will be placed within each generated room on random
-    let mut game = Game { maze: create_maze(&mut entities) }; 
+    let mut game = Game { 
+        maze: create_maze(&mut entities),
+        messages: Messages::new()
+    }; 
+
+    // add a welcoming message
+    game.messages.add(
+        "Welcome player! Prepare for the adventure of your life.",
+        RED,
+    );
 
     // populate the FOV map, according to the generated maze
     // the libtcod FOV module needs to know which tiles block sight

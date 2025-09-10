@@ -2,6 +2,7 @@ use std::cmp;
 use rand::Rng;
 use tcod::colors::*;
 use crate::models::entity::*;
+use crate::models::tcod_db::{Messages};
 
 // size of the maze
 pub const MAZE_WIDTH: i32 = 80;
@@ -32,7 +33,8 @@ pub type Maze = Vec<Vec<Tile>>;
 // the main game Entity
 // maze is the map to be explored - a jagged array
 pub struct Game {
-    pub maze: Maze
+    pub maze: Maze,
+    pub messages: Messages
 }
 
 // A tile of the maze and its properties

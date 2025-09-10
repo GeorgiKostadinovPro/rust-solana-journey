@@ -1,4 +1,4 @@
-# A console roguelike game in which the player explores a random generated maze with FoV, collects coins, fights monsters, etc.
+# A console roguelike game in which the player explores a random generated maze with FoV, fights monsters, collects items, etc.
 
 ## Gameplay video:
 
