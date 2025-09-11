@@ -27,11 +27,11 @@ impl<T: Serialize> ResponseType<T> {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct NotFound {
+pub struct NotFoundMessage {
     message: String
 }
 
-impl NotFound {
+impl NotFoundMessage {
     pub fn new(message: String) -> Self {
         Self { message }
     }
