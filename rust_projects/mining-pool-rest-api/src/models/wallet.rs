@@ -15,15 +15,15 @@ pub struct Wallet {
     pub online_workers: Vec<Miner>
 }
 
-// POST Request Body - Create Miner
+// POST Request Body - Create Wallet
 #[derive(Debug, Serialize, Deserialize)]
 pub struct CreateWallet {
     pub club_name: String
 }
 
-// Miner DAO (DB Table Records)
+// Wallet DAO (DB Table Records)
 #[derive(Debug, Serialize, Deserialize)]
-pub struct MinerDAO {
+pub struct WalletDAO {
     pub address: String,
     pub club_name: String
 }

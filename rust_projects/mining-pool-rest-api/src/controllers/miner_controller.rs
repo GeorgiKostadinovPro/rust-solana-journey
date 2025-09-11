@@ -2,7 +2,7 @@ use {
     actix_web::HttpResponse,
     actix_web::web::Json,
 
-    crate::models::*,
+    crate::models::miner::*,
     crate::util::*
 };
 
@@ -31,7 +31,8 @@ pub async fn get_by_id(id: String) -> HttpResponse {
 
 // POST - create a miner for a wallet
 // miner is owned by a wallet, so the miner has to be created in specific wallet
-#[get("/wallet/{id}/miners/create")]
-pub async fn create_miner(miner_request: Json<CreateMiner>) -> HttpResponse {
-
+#[post("/wallet/{id}/miners/create")]
+pub async fn create(miner_request: Json<CreateMiner>) -> HttpResponse {
+    let miner: Vec<Miner> = vec![];
+    ResponseType::Ok(miner).get_response()
 }
