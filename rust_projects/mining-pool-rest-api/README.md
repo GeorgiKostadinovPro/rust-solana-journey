@@ -1,9 +1,8 @@
 # A fully-functional REST API for a crypto-mining pool
 
-## This project combines everything learned from:
+## Topics learned:
 
-- [explore-the-maze](../explore-the-maze/)
-- [node-info-app](../node-info-app/)
+- REST API with Rust
 
 ## Application Flow:
 
